@@ -24,7 +24,7 @@ public class Filter<T> {
 
     public Specification<T> isNotDeleted() {
         return (root, query, criteriaBuilder) -> {
-            return criteriaBuilder.notEqual(root.get("isDeleted"), "True");
+            return criteriaBuilder.notEqual(root.get("isDeleted"), true);
         };
     }
 

@@ -13,9 +13,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.RestTemplate;
 
 import com.cms.helpdesk.config.jwt.JwtService;
+import com.cms.helpdesk.management.users.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
+@RequiredArgsConstructor
 public class ApplicationConfig {
+
+    private final UserRepository userRepository;
+
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
@@ -24,7 +31,7 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService userDetailsService(RestTemplate restTemplate,
             JwtService jwtService) {
-        return username -> userRepository.findByUsername(username)
+        return email -> userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 

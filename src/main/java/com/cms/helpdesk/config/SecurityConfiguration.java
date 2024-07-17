@@ -19,27 +19,27 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final JwtAuthenticationFilter jwtAuthFilter;
-    private final JwtException jwtException;
+        private final JwtAuthenticationFilter jwtAuthFilter;
+        private final JwtException jwtException;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtException))
-                .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/api/login")
-                        .permitAll()
-                        .requestMatchers("/swagger-ui/index.html")
-                        .permitAll()
-                        .requestMatchers("/api-docs")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated())
-                .sessionManagement(management -> management
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtException))
+                                .authorizeHttpRequests(requests -> requests
+                                                .requestMatchers("/api/**")
+                                                .permitAll()
+                                                .requestMatchers("/swagger-ui/index.html")
+                                                .permitAll()
+                                                .requestMatchers("/api-docs")
+                                                .permitAll()
+                                                .anyRequest()
+                                                .authenticated())
+                                .sessionManagement(management -> management
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+                return http.build();
+        }
 }

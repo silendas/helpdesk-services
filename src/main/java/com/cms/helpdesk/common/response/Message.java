@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum Message {
 
     // Proccess
-    SUCESSFULLY_DEFAULT(200, "Proses Berhasil"),
+    SUCCESSFULLY_DEFAULT(200, "Proses Berhasil"),
     NOT_FOUND_DEFAULT(404, "Data tidak ditemukan"),
     FAILED_DEFAULT(400, "Proses Gagal"),
     SUCCESS_FAILED_DEFAULT(400, "Terdapat beberapa kesalahan request"),
