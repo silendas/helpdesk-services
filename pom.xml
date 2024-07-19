@@ -106,9 +106,9 @@
 		<profile>
 			<id>dev</id>
 			<properties>
-                <spring.datasource.url>jdbc:postgresql://127.0.0.1:5432/</spring.datasource.url>
+                <spring.datasource.url>jdbc:postgresql://127.0.0.1:5432/db_helpdesk</spring.datasource.url>
                 <spring.datasource.username>postgres</spring.datasource.username>
-                <spring.datasource.password>root</spring.datasource.password>
+                <spring.datasource.password>admin</spring.datasource.password>
 			</properties>
 		</profile>
 		<profile>
@@ -116,7 +116,7 @@
 			<properties>
                 <spring.datasource.url>jdbc:postgresql://127.0.0.1:5432/</spring.datasource.url>
                 <spring.datasource.username>postgres</spring.datasource.username>
-                <spring.datasource.password>root</spring.datasource.password>
+                <spring.datasource.password>admin</spring.datasource.password>
 			</properties>
 		</profile>
 	</profiles>

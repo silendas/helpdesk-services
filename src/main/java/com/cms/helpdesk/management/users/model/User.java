@@ -55,7 +55,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @ManyToOne
     @JoinColumn(name = "role_id")
-    private Role role;
+    private Role roleId;
 
     @ManyToOne
     @JoinColumn(name = "department_id", nullable = true)
@@ -71,7 +71,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.getName()));
+        return List.of(new SimpleGrantedAuthority(roleId.getName()));
     }
 
     @Override

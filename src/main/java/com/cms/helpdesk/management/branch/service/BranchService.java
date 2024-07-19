@@ -45,27 +45,26 @@ public class BranchService {
     public ResponseEntity<Object> createBranch(BranchDTO dto) {
         Branch branch = new Branch();
         branch.setName(dto.getName());
-        branch.setRegion(getRegion(dto.getRegionId()));
+        branch.setRegionId(getRegion(dto.getRegionId()));
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, branchRepository.save(branch), null), 0);
     }
 
     public ResponseEntity<Object> updateBranch(Long id, BranchDTO dto) {
         Branch branch = getBranch(id);
-        // branch.setName(dto.getName());
-        // branch.setRegion(getRegion(dto.getRegionId()));
-        if (dto.getName() != null) {
+
+        if (dto.getName() != null && !dto.getName().isEmpty()) {
             branch.setName(dto.getName());
         }
 
-        if (dto.getRegionId() != null) {
+        if (dto.getRegionId() != null && dto.getRegionId() != 0) {
             Region region = getRegion(dto.getRegionId());
             if (region == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new GlobalDto(HttpStatus.BAD_REQUEST.value(), null, "Invalid region ID", null, null,
                                 null));
             }
-            branch.setRegion(region);
+            branch.setRegionId(region);
         }
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, branchRepository.save(branch), null), 0);

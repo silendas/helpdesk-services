@@ -41,7 +41,7 @@ public class RegionService {
         Region region = new Region();
         region.setName(dto.getName());
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, regionRepository.save(region), null), 1);
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, regionRepository.save(region), null), 0);
     }
 
     public ResponseEntity<Object> updateRegion(Long id, RegionDTO dto) {
