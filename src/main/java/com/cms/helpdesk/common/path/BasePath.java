@@ -10,6 +10,7 @@ public interface BasePath {
     String BASE_USERS = BASE_API + "/users";
 
     String BASE_CONSTRAINT_CATEGORY = BASE_API + "/constraint-category";
+    String BASE_TARGET_COMPLETION = BASE_API + "/target-completion";
 
     String BASE_TICKETS = BASE_API + "/tickets";
 
