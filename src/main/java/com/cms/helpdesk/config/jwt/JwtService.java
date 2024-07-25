@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.cms.helpdesk.management.users.model.User;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -65,16 +67,15 @@ public class JwtService {
         blacklist.clear();
     }
 
-    // public String generateToken(UserDto user) {
-    // Map<String, Object> extraClaim = new HashMap<>();
-    // extraClaim.put("Token", user.getJwt_token());
-    // return Jwts.builder()
-    // .setClaims(extraClaim)
-    // .setSubject(user.getNip())
-    // .setIssuedAt(new Date(System.currentTimeMillis()))
-    // .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) //
-    // 10 hours expiry
-    // .signWith(SignatureAlgorithm.HS256, Base64.getDecoder().decode(secret))
-    // .compact();
-    // }
+    public String generateToken(User user) {
+        Map<String, Object> extraClaim = new HashMap<>();
+        extraClaim.put("user", user);
+        return Jwts.builder()
+                .setClaims(extraClaim)
+                .setSubject(user.getEmail())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours expiry
+                .signWith(SignatureAlgorithm.HS256, Base64.getDecoder().decode(secret))
+                .compact();
+    }
 }

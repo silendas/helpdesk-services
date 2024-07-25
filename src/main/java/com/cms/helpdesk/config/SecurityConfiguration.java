@@ -28,7 +28,7 @@ public class SecurityConfiguration {
                                 .csrf(AbstractHttpConfigurer::disable)
                                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtException))
                                 .authorizeHttpRequests(requests -> requests
-                                                .requestMatchers("/api/**")
+                                                .requestMatchers("/api/authenticate")
                                                 .permitAll()
                                                 .requestMatchers("/swagger-ui/index.html")
                                                 .permitAll()

@@ -5,6 +5,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -108,6 +109,20 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public final ResponseEntity<Object> handleMethodArgumentTypeMismatchException(
             MethodArgumentTypeMismatchException ex, WebRequest request) {
+        List<String> details = new ArrayList<>();
+        details.add(ex.getLocalizedMessage());
+
+        GlobalDto errorDetails = new GlobalDto();
+        errorDetails.setMessage(Message.EXCEPTION_BAD_REQUEST.getMessage());
+        errorDetails.setStatus(Message.EXCEPTION_BAD_REQUEST.getStatusCode());
+        errorDetails.setDetails(details);
+
+        return Response.buildResponse(errorDetails, 3);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public final ResponseEntity<Object> handleMethodArgumentTypeMismatchException(
+        BadCredentialsException ex, WebRequest request) {
         List<String> details = new ArrayList<>();
         details.add(ex.getLocalizedMessage());
 

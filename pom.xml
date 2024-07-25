@@ -104,6 +104,14 @@
 			</activation>
 		</profile>
 		<profile>
+			<id>iyas</id>
+			<properties>
+				<spring.datasource.url>jdbc:postgresql://127.0.0.1:5432/cms_helpdesk</spring.datasource.url>
+                <spring.datasource.username>postgres</spring.datasource.username>
+                <spring.datasource.password>root</spring.datasource.password>
+			</properties>
+		</profile>
+		<profile>
 			<id>dev</id>
 			<properties>
                 <spring.datasource.url>jdbc:postgresql://127.0.0.1:5432/db_helpdesk</spring.datasource.url>

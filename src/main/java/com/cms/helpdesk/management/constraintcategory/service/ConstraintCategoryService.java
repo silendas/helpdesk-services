@@ -20,7 +20,6 @@ import com.cms.helpdesk.management.constraintcategory.repository.ConstraintCateg
 import com.cms.helpdesk.management.constraintcategory.repository.PaginateConstraintCategory;
 import com.cms.helpdesk.management.departments.model.Department;
 import com.cms.helpdesk.management.departments.repository.DepartmentRepository;
-import com.cms.helpdesk.management.regions.model.Region;
 
 @Service
 public class ConstraintCategoryService {

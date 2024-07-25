@@ -3,6 +3,9 @@ package com.cms.helpdesk.common.path;
 public interface BasePath {
     String BASE_API = "/api";
 
+    String BASE_AUTHENTICATE = BASE_API + "/authenticate";
+    String BASE_LOGOUT = BASE_API + "/logout";
+
     String BASE_ROLES = BASE_API + "/roles";
     String BASE_DEPARTMENTS = BASE_API + "/departments";
     String BASE_REGIONS = BASE_API + "/regions";
