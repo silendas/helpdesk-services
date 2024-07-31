@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.cms.helpdesk.management.users.model.Employee;
 
 @Repository
-public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSpecificationExecutor<Employee> {
+public interface EmployeeRepository extends JpaRepository<Employee, String>, JpaSpecificationExecutor<Employee> {
 
     @Query("SELECT e FROM Employee e WHERE e.nip = ?1")
     public Optional<Employee> findByNip(String nip);

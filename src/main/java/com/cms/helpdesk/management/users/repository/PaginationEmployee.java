@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import com.cms.helpdesk.management.users.model.Employee;
 
 @Repository
-public interface PaginationEmployee extends PagingAndSortingRepository<Employee, Long>, JpaSpecificationExecutor<Employee> {
+public interface PaginationEmployee extends PagingAndSortingRepository<Employee, String>, JpaSpecificationExecutor<Employee> {
     
 }

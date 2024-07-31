@@ -59,9 +59,9 @@ public class EmployeeService {
         }
     }
 
-    public ResponseEntity<Object> getEmployeeById(Long id) {
+    public ResponseEntity<Object> getEmployeeById(String nip) {
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.findById(id), null), 1);
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.findById(nip), null), 1);
     }
 
     public ResponseEntity<Object> getEmployeeByNIP(String nip) {
@@ -82,8 +82,8 @@ public class EmployeeService {
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(employee), null), 0);
     }
 
-    public ResponseEntity<Object> updateEmployee(ReqEmployeeDTO dto, Long id) {
-        Employee employee = getEmployee(id);
+    public ResponseEntity<Object> updateEmployee(ReqEmployeeDTO dto, String nip) {
+        Employee employee = getEmployee(nip);
         Employee request = new Employee();
         request.setNip(dto.getNip());
         request.setName(dto.getName());
@@ -109,16 +109,16 @@ public class EmployeeService {
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(employee), null), 0);
     }
 
-    public ResponseEntity<Object> deleteEmployee(Long id) {
-        Employee employee = getEmployee(id);
+    public ResponseEntity<Object> deleteEmployee(String nip) {
+        Employee employee = getEmployee(nip);
         employee.setDeleted(true);
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(employee), null), 0);
     }
 
-    public Employee getEmployee(Long id) {
-        return repo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee with id : " + id + " not found"));
+    public Employee getEmployee(String nip) {
+        return repo.findById(nip)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee with id : " + nip + " not found"));
     }
 
     public Employee getEmployeeByNip(String nip) {

@@ -6,6 +6,7 @@ import com.cms.helpdesk.common.model.BaseEntity;
 import com.cms.helpdesk.management.branch.model.Branch;
 import com.cms.helpdesk.management.departments.model.Department;
 import com.cms.helpdesk.management.regions.model.Region;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,6 +38,7 @@ public class Employee extends BaseEntity{
     @Column(name = "phone")
     private String phone;
 
+    @JsonIgnore
     @Column(name = "is_registered")
     private boolean isRegistered;
 
