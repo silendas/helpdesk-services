@@ -72,7 +72,7 @@ public class UserService {
         user.setNip(dto.getNip());
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setRoleId(getRole(dto.getRoleId()));
+        user.setRole(getRole(dto.getRoleId()));
         user.setApprove(true);
 
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
@@ -85,7 +85,7 @@ public class UserService {
         request.setNip(dto.getNip());
         request.setEmail(dto.getEmail());
         request.setPassword(passwordEncoder.encode(dto.getPassword()));
-        request.setRoleId(getRole(dto.getRoleId()));
+        request.setRole(getRole(dto.getRoleId()));
         request.setApprove(dto.isApprove());
         Field[] fields = request.getClass().getDeclaredFields();
         for (Field field : fields) {
@@ -147,7 +147,7 @@ public class UserService {
         res.setNip(user.getNip());
         res.setName(employee.getName());
         res.setEmail(user.getEmail());
-        res.setRole(user.getRoleId());
+        res.setRole(user.getRole());
 
         OrganizeRes organizeRes = new OrganizeRes();
         organizeRes.setDepartment(employee.getDepartment());
