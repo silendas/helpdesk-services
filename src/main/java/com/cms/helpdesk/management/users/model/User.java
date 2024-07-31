@@ -18,6 +18,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,7 +39,8 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "nip", unique = true)
+    @OneToOne
+    @JoinColumn(name = "nip", unique = true)
     private Employee employee;
 
     @Column(name = "email", unique = true)

@@ -16,10 +16,10 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query("SELECT u FROM User u WHERE u.email = :email")
     Optional<User> findByEmail(String email);
 
-    @Query("SELECT u FROM User u WHERE u.nip = :nip")
+    @Query("SELECT u FROM User u WHERE u.employee.nip = :nip")
     Optional<User> findByNip(String nip);
 
-    @Query("SELECT u FROM User u WHERE u.email = :email or u.nip = :nip ")
+    @Query("SELECT u FROM User u WHERE u.email = :email or u.employee.nip = :nip ")
     Optional<User> findByEmailOrNip(@Param("email") String email, @Param("nip") String nip);
 
 
