@@ -14,8 +14,7 @@ import com.cms.helpdesk.management.users.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 
 @Service
-public class insertDevUser {
-
+public class InitialData {
     @Autowired
     private UserRepository userRepository;
 
@@ -29,13 +28,28 @@ public class insertDevUser {
     private PasswordEncoder passwordEncoder;
 
     @PostConstruct
-    public void insert() {
-        if (userRepository.count() == 0) {
+    public void insertRoles() {
+        if (roleRepository.count() == 0) {
+            String[] roleNames = { "SUPERADMIN", "HELPDESK", "SUPERVISOR", "USER" };
+
+            for (String roleName : roleNames) {
+                Role role = new Role();
+                role.setName(roleName);
+                roleRepository.save(role);
+            }
+        }
+    }
+
+    @PostConstruct
+    public void insertUser() {
+        if (employeeRepository.count() == 0) {
             Employee employee = new Employee();
             employee.setNip("cmssuperadmin");
             employee.setName("Super Admin");
             employeeRepository.save(employee);
+        }
 
+        if (userRepository.count() == 0) {
             User user = new User();
             user.setNip("cmssuperadmin");
             user.setEmail("itcmsmaju@gmail.com");
@@ -47,9 +61,7 @@ public class insertDevUser {
     }
 
     public Role getRole(Long id) {
-        Role role = new Role();
-        role.setId(id);
-        return role;
+        return roleRepository.findById(id).orElse(null);
     }
 
 }
