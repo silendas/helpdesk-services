@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cms.helpdesk.common.path.BasePath;
+import com.cms.helpdesk.management.users.dto.request.CreateEmployeeDTO;
 import com.cms.helpdesk.management.users.dto.request.ReqEmployeeDTO;
 import com.cms.helpdesk.management.users.service.EmployeeService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(value = BasePath.BASE_EMPLOYEE)
@@ -49,7 +52,7 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createEmployee(ReqEmployeeDTO dto){
+    public ResponseEntity<Object> createEmployee(@Valid @RequestBody CreateEmployeeDTO dto){
         return service.saveEmployee(dto);
     }
 

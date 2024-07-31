@@ -58,7 +58,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = true)
-    private Role roleId;
+    private Role role;
 
     @ManyToOne
     @JoinColumn(name = "registration_id", nullable = true)

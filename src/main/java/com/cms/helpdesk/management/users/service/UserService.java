@@ -67,14 +67,6 @@ public class UserService {
     }
 
     public ResponseEntity<Object> createUser(ReqUserDTO dto) {
-        // if ((dto.getDepartmentId() == null || dto.getDepartmentId() == 0) &&
-        // (dto.getRegionId() == null || dto.getRegionId() == 0) &&
-        // (dto.getBranchId() == null || dto.getBranchId() == 0)) {
-        // return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        // .body(new GlobalDto(HttpStatus.BAD_REQUEST.value(), null,
-        // "At least one of Branch, Department, or Region must be provided", null, null,
-        // null));
-        // }
 
         User user = new User();
         user.setNip(dto.getNip());
@@ -82,18 +74,6 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRoleId(getRole(dto.getRoleId()));
         user.setApprove(true);
-
-        // if (dto.getDepartmentId() != null) {
-        // user.setDepartmentId(getDepartment(dto.getDepartmentId()));
-        // }
-
-        // if (dto.getRegionId() != null) {
-        // user.setRegionId(getRegion(dto.getRegionId()));
-        // }
-
-        // if (dto.getBranchId() != null) {
-        // user.setBranchId(getBranch(dto.getBranchId()));
-        // }
 
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, userRepository.save(user), null), 0);
