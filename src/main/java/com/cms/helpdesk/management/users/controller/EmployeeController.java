@@ -39,9 +39,9 @@ public class EmployeeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getEmployeeById(
-        @RequestParam("id") Long id
+        @RequestParam("nip") String nip
     ) {
-        return service.getEmployeeById(id);
+        return service.getEmployeeById(nip);
     }
 
     @GetMapping("/validation")
@@ -56,14 +56,14 @@ public class EmployeeController {
         return service.saveEmployee(dto);
     }
 
-    @PatchMapping("/{id}/update")
-    public ResponseEntity<Object> updateUser(@PathVariable("id") Long id, @RequestBody ReqEmployeeDTO dto) {
-        return service.updateEmployee(dto, id);
+    @PatchMapping("/{nip}/update")
+    public ResponseEntity<Object> updateUser(@PathVariable("nip") String nip, @RequestBody ReqEmployeeDTO dto) {
+        return service.updateEmployee(dto, nip);
     }
 
-    @DeleteMapping("/{id}/delete")
-    public ResponseEntity<Object> deleteUser(@PathVariable("id") Long id) {
-        return service.deleteEmployee(id);
+    @DeleteMapping("/{nip}/delete")
+    public ResponseEntity<Object> deleteUser(@PathVariable("nip") String nip) {
+        return service.deleteEmployee(nip);
     }
     
 }
