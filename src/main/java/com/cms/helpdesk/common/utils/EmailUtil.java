@@ -2,14 +2,9 @@ package com.cms.helpdesk.common.utils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
@@ -17,9 +12,6 @@ import org.springframework.stereotype.Component;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.MessagingException;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 @Component
 @Slf4j
@@ -27,9 +19,9 @@ public class EmailUtil {
     
     @Autowired
     private JavaMailSender emailSender;
+    
     @Autowired
     private ResourceLoader resourceLoader;
-
 
     public void sendEmail(String to, String subject, String text, boolean isHtml, String attachmentPath) {
         try {

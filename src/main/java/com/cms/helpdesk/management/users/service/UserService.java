@@ -69,7 +69,7 @@ public class UserService {
     public ResponseEntity<Object> createUser(ReqUserDTO dto) {
 
         User user = new User();
-        user.setNip(dto.getNip());
+        user.setEmployee(employeeService.getEmployeeByNip(dto.getNip()));
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(getRole(dto.getRoleId()));
@@ -82,7 +82,7 @@ public class UserService {
     public ResponseEntity<Object> updateUser(Long id, ReqUserDTO dto) {
         User user = getUser(id);
         User request = new User();
-        request.setNip(dto.getNip());
+        request.setEmployee(employeeService.getEmployeeByNip(dto.getNip()));
         request.setEmail(dto.getEmail());
         request.setPassword(passwordEncoder.encode(dto.getPassword()));
         request.setRole(getRole(dto.getRoleId()));
@@ -142,21 +142,22 @@ public class UserService {
 
     private UserRes buildResUser(User user) {
         UserRes res = new UserRes();
-        Employee employee = employeeService.getEmployeeByNip(user.getNip());
         res.setId(user.getId());
-        res.setNip(user.getNip());
-        res.setName(employee.getName());
+        res.setNip(user.getEmployee().getNip());
+        res.setName(user.getEmployee().getName());
         res.setEmail(user.getEmail());
         res.setRole(user.getRole());
 
         OrganizeRes organizeRes = new OrganizeRes();
-        organizeRes.setDepartment(employee.getDepartment());
-        organizeRes.setRegion(employee.getRegion());
-        organizeRes.setBranch(employee.getBranch());
+        organizeRes.setDepartment(user.getEmployee().getDepartment());
+        organizeRes.setRegion(user.getEmployee().getRegion());
+        organizeRes.setBranch(user.getEmployee().getBranch());
         res.setOrganize(organizeRes);
 
         return res;
     }
+
+
 
     private User getUser(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));

@@ -78,7 +78,7 @@ public class OtpService {
 
     public void createUser(Registration registration) {
         User user = new User();
-        user.setNip(registration.getNip());
+        user.setEmployee(getEmployeeByNip(registration.getNip()));
         user.setEmail(registration.getEmail());
         user.setPassword(registration.getNip());
         user.setApprove(false);

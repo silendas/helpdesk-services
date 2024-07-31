@@ -72,7 +72,7 @@ public class JwtService {
         extraClaim.put("user", user);
         return Jwts.builder()
                 .setClaims(extraClaim)
-                .setSubject(user.getNip())
+                .setSubject(user.getEmployee().getNip())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours expiry
                 .signWith(SignatureAlgorithm.HS256, Base64.getDecoder().decode(secret))

@@ -46,17 +46,17 @@ public class InitialData {
             Employee employee = new Employee();
             employee.setNip("cmssuperadmin");
             employee.setName("Super Admin");
-            employeeRepository.save(employee);
-        }
+            Employee resEmployee = employeeRepository.save(employee);
 
-        if (userRepository.count() == 0) {
-            User user = new User();
-            user.setNip("cmssuperadmin");
-            user.setEmail("itcmsmaju@gmail.com");
-            user.setPassword(passwordEncoder.encode("@cmssuperadmin"));
-            user.setRole(getRole(1L));
-            user.setApprove(true);
-            userRepository.save(user);
+            if (userRepository.count() == 0) {
+                User user = new User();
+                user.setEmployee(resEmployee);
+                user.setEmail("itcmsmaju@gmail.com");
+                user.setPassword(passwordEncoder.encode("@cmssuperadmin"));
+                user.setRole(getRole(1L));
+                user.setApprove(true);
+                userRepository.save(user);
+            }
         }
     }
 

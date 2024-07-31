@@ -39,7 +39,7 @@ public class User extends BaseEntity implements UserDetails {
     private Long id;
 
     @Column(name = "nip", unique = true)
-    private String nip;
+    private Employee employee;
 
     @Column(name = "email", unique = true)
     private String email;
@@ -71,7 +71,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return nip;
+        return employee.getNip();
     }
 
     @JsonIgnore
