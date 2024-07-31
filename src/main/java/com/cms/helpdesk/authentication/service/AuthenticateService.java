@@ -16,7 +16,6 @@ import com.cms.helpdesk.common.response.Message;
 import com.cms.helpdesk.common.response.Response;
 import com.cms.helpdesk.common.response.dto.GlobalDto;
 import com.cms.helpdesk.config.jwt.JwtService;
-import com.cms.helpdesk.management.users.dto.request.RegisterDto;
 import com.cms.helpdesk.management.users.model.Employee;
 import com.cms.helpdesk.management.users.model.User;
 import com.cms.helpdesk.management.users.repository.UserRepository;
