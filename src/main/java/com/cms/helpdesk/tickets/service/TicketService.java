@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import com.cms.helpdesk.common.exception.ResourceNotFoundException;
 import com.cms.helpdesk.common.response.Message;
@@ -56,12 +57,6 @@ public class TicketService {
     public ResponseEntity<Object> getTickets(int page, int size) {
         Specification<Ticket> spec = Specification.where(new Filter<Ticket>().isNotDeleted())
                 .and(new Filter<Ticket>().orderByIdDesc());
-
-        User getUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        // if (getUser.getLevel().getCode().equals("C")) {
-
-        System.out.println(getUser.getRole());
         Page<Ticket> res = paginate.findAll(spec, PageRequest.of(page, size));
         return Response.buildResponse(
                 new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
@@ -71,34 +66,62 @@ public class TicketService {
 
     public ResponseEntity<Object> createTicket(CreateTicketDTO dto) {
 
-        User getUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User getUserData = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        System.out.println(getUser.getRole());
+        String userRole = getUserData.getRole().getName();
+        Department userDepartment = getUserData.getEmployee().getDepartment();
+        Region userRegion = getUserData.getEmployee().getRegion();
+        Branch userBranch = getUserData.getEmployee().getBranch();
 
-        // Get the current date in YYYMMDD format
+        // Get the current date in YYYYMMDD format
         LocalDate today = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         String currentDateStr = today.format(formatter);
 
         String datePattern = "#" + currentDateStr + "-%";
 
-        String lastTicketNumber = ticketRepository.findLastTicketNumberByDate(datePattern);
+        // Retrieve the last ticket number created today, limited to the most recent one
+        List<String> lastTicketNumbers = ticketRepository.findLastTicketNumberByDate(datePattern);
 
-        int nextNum = 1;
+        String lastTicketNumber = lastTicketNumbers.isEmpty() ? null : lastTicketNumbers.get(0);
+
+        int nextNum = 1; // Default to 1 if no tickets have been created today
         if (lastTicketNumber != null) {
             String[] parts = lastTicketNumber.split("-");
             if (parts.length == 2 && parts[0].equals("#" + currentDateStr)) {
-                nextNum = Integer.parseInt(parts[1] + 1);
+                try {
+                    nextNum = Integer.parseInt(parts[1]) + 1; // Increment the last number found
+                } catch (NumberFormatException e) {
+                    // Handle the exception if the number part is not a valid integer
+                    nextNum = 1; // Fallback to 1 in case of an error
+                }
             }
         }
 
+        // Generate the new ticket number
         String newTicketNumber = "#" + currentDateStr + "-" + nextNum;
 
-        Long departmentId, regionId, branchId;
+        Department departmentId;
+        Region regionId;
+        Branch branchId;
+
+        if (userRole.equalsIgnoreCase("USER")) {
+            departmentId = userDepartment;
+            regionId = userRegion;
+            branchId = userBranch;
+        } else {
+            departmentId = getDepartment(dto.getDepartmentId());
+            regionId = getRegion(dto.getRegionId());
+            branchId = getBranch(dto.getBranchId());
+        }
 
         Ticket ticket = new Ticket();
         ticket.setTicketNumber(newTicketNumber);
         ticket.setDescription(dto.getDescription());
+        ticket.setConstraintCategoryId(getConstraint(dto.getConstraintCategoryId()));
+        ticket.setDepartmentId(departmentId);
+        ticket.setRegionId(regionId);
+        ticket.setBranchId(branchId);
         ticket.setStatus(StatusEnum.OPEN);
         ticket.setExternal(false);
 
@@ -111,16 +134,25 @@ public class TicketService {
     }
 
     public Department getDepartment(Long id) {
+        if (id == null) {
+            return null;
+        }
         return departmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Department Not Found"));
     }
 
     public Region getRegion(Long id) {
+        if (id == null) {
+            return null;
+        }
         return regionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Region Not Found"));
     }
 
     public Branch getBranch(Long id) {
+        if (id == null) {
+            return null;
+        }
         return branchRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Branch Not Found"));
     }

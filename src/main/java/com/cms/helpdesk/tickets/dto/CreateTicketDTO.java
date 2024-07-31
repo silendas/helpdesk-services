@@ -9,9 +9,6 @@ import lombok.Data;
 @Data
 public class CreateTicketDTO {
 
-    @NotBlank(message = "Ticket Number should not be empty")
-    private String ticketNumber;
-
     @NotBlank(message = "Description should not be empty")
     private String description;
 
@@ -21,9 +18,6 @@ public class CreateTicketDTO {
 
     @NotNull(message = "Constraint should not be empty")
     private Long constraintCategoryId;
-
-    @NotNull(message = "Status should not be empty")
-    private StatusEnum status;
 
     private boolean isExternal;
 }

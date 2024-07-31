@@ -1,5 +1,7 @@
 package com.cms.helpdesk.tickets.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -10,6 +12,6 @@ import com.cms.helpdesk.tickets.model.Ticket;
 
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long>, JpaSpecificationExecutor<Ticket> {
-    @Query("SELECT t.ticketNumber FROM Ticket t where t.ticketNumber LIKE :datePattern ORDER BY t.id DESC")
-    String findLastTicketNumberByDate(@Param("datePattern") String datePattern);
+    @Query("SELECT t.ticketNumber FROM Ticket t WHERE t.ticketNumber LIKE :datePattern ORDER BY t.id DESC")
+    List<String> findLastTicketNumberByDate(@Param("datePattern") String datePattern);
 }
