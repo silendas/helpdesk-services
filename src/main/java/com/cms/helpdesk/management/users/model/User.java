@@ -8,9 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 
 import com.cms.helpdesk.common.model.BaseEntity;
-import com.cms.helpdesk.management.branch.model.Branch;
-import com.cms.helpdesk.management.departments.model.Department;
-import com.cms.helpdesk.management.regions.model.Region;
 import com.cms.helpdesk.management.roles.model.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -44,9 +41,6 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "nip", unique = true)
     private String nip;
 
-    @Column(name = "name")
-    private String name;
-
     @Column(name = "email", unique = true)
     private String email;
 
@@ -54,21 +48,21 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "password")
     private String password;
 
+    @JsonIgnore
+    @Column(name = "otp")
+    private String otp;
+
+    @JsonIgnore
+    @Column(name = "is_approve")
+    private boolean isApprove;
+
     @ManyToOne
-    @JoinColumn(name = "role_id")
+    @JoinColumn(name = "role_id", nullable = true)
     private Role roleId;
 
     @ManyToOne
-    @JoinColumn(name = "department_id", nullable = true)
-    private Department departmentId;
-
-    @ManyToOne
-    @JoinColumn(name = "region_id", nullable = true)
-    private Region regionId;
-
-    @ManyToOne
-    @JoinColumn(name = "branch_id", nullable = true)
-    private Branch branchId;
+    @JoinColumn(name = "registration_id", nullable = true)
+    private Registration registration;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -77,7 +71,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return nip;
     }
 
     @JsonIgnore
@@ -89,28 +83,24 @@ public class User extends BaseEntity implements UserDetails {
     @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
-        // TODO Auto-generated method stub
         return true;
     }
 
     @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
-        // TODO Auto-generated method stub
         return true;
     }
 
     @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
-        // TODO Auto-generated method stub
         return true;
     }
 
     @JsonIgnore
     @Override
     public boolean isEnabled() {
-        // TODO Auto-generated method stub
         return true;
     }
 

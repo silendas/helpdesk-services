@@ -15,8 +15,10 @@ public enum Message {
 
     // Auth
     SUCCESSFULLY_LOGIN(200, "Login Berhasil"),
+    SUCCESSFULLY_REGISTER(200, "Register Berhasil"),
     SUCCESSFULLY_LOGOUT(200, "Logout Berhasil"),
     FAILED_LOGOUT(404, "Logout Gagal"),
+    FAILED_REGISTER(404, "Register Gagal"),
     FAILED_LOGIN(404, "Login Gagal"),
 
     // Exception

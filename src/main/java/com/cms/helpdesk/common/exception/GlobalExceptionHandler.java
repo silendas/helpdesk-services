@@ -70,7 +70,7 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
     public final ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex,
             WebRequest request) {
         List<String> details = new ArrayList<>();
-        details.add(ex.getLocalizedMessage());
+        details.add(ex.getMessage());
 
         GlobalDto errorDetails = new GlobalDto();
         errorDetails.setMessage(Message.NOT_FOUND_DEFAULT.getMessage());
@@ -125,6 +125,20 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
         BadCredentialsException ex, WebRequest request) {
         List<String> details = new ArrayList<>();
         details.add(ex.getLocalizedMessage());
+
+        GlobalDto errorDetails = new GlobalDto();
+        errorDetails.setMessage(Message.EXCEPTION_BAD_REQUEST.getMessage());
+        errorDetails.setStatus(Message.EXCEPTION_BAD_REQUEST.getStatusCode());
+        errorDetails.setDetails(details);
+
+        return Response.buildResponse(errorDetails, 3);
+    }
+
+    @ExceptionHandler(OtpValidationException.class)
+    public final ResponseEntity<Object> handleOtpValidationException(
+        OtpValidationException ex, WebRequest request) {
+        List<String> details = new ArrayList<>();
+        details.add(ex.getMessage());
 
         GlobalDto errorDetails = new GlobalDto();
         errorDetails.setMessage(Message.EXCEPTION_BAD_REQUEST.getMessage());

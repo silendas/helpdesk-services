@@ -1,0 +1,152 @@
+package com.cms.helpdesk.management.users.service;
+
+import java.lang.reflect.Field;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import com.cms.helpdesk.common.exception.ResourceNotFoundException;
+import com.cms.helpdesk.common.response.Message;
+import com.cms.helpdesk.common.response.Response;
+import com.cms.helpdesk.common.response.dto.GlobalDto;
+import com.cms.helpdesk.common.reuse.Filter;
+import com.cms.helpdesk.common.reuse.PageConvert;
+import com.cms.helpdesk.management.branch.model.Branch;
+import com.cms.helpdesk.management.branch.repository.BranchRepository;
+import com.cms.helpdesk.management.departments.model.Department;
+import com.cms.helpdesk.management.departments.repository.DepartmentRepository;
+import com.cms.helpdesk.management.regions.model.Region;
+import com.cms.helpdesk.management.regions.repository.RegionRepository;
+import com.cms.helpdesk.management.users.dto.request.ReqEmployeeDTO;
+import com.cms.helpdesk.management.users.model.Employee;
+import com.cms.helpdesk.management.users.repository.EmployeeRepository;
+import com.cms.helpdesk.management.users.repository.PaginationEmployee;
+
+@Service
+public class EmployeeService {
+
+    @Autowired
+    private EmployeeRepository repo;
+
+    @Autowired
+    private PaginationEmployee paginate;
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private BranchRepository branchRepository;
+
+    @Autowired
+    private RegionRepository regionRepository;
+
+    public ResponseEntity<Object> getEmployees(boolean pageable, int page, int size) {
+        Specification<Employee> spec = Specification
+                .where(new Filter<Employee>().orderByIdDesc())
+                .and(new Filter<Employee>().isNotDeleted());
+        if (pageable) {
+            Page<Employee> res = paginate.findAll(spec, PageRequest.of(page, size));
+            return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                    Message.SUCCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res), res.getContent(), null), 1);
+        } else {
+            return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                    Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.findAll(), null), 1);
+        }
+    }
+
+    public ResponseEntity<Object> getEmployeeById(Long id) {
+        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.findById(id), null), 1);
+    }
+
+    public ResponseEntity<Object> getEmployeeByNIP(String nip) {
+        Employee employee = getEmployeeByNip(nip);
+        if(employee.isRegistered()) {
+            return Response.buildResponse(new GlobalDto(302, null,
+                    "Karyawan sudah mendaftar sebelumnya", null, null, null), 0);
+        }
+        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, employee, null), 1);
+    }
+
+    public ResponseEntity<Object> saveEmployee(ReqEmployeeDTO dto) {
+        Employee employee = new Employee();
+        employee.setDepartment(getDepartment(dto.getDepartmentId()));
+        employee.setRegion(getRegion(dto.getRegionId()));
+        employee.setBranch(getBranch(dto.getBranchId()));
+        employee.setNip(dto.getNip());
+        employee.setRegistered(false);
+        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(employee), null), 0);
+    }
+
+    public ResponseEntity<Object> updateEmployee(ReqEmployeeDTO dto, Long id) {
+        Employee employee = getEmployee(id);
+        Employee request = new Employee();
+        request.setNip(dto.getNip());
+        request.setName(dto.getName());
+        request.setPhone(dto.getPhone());
+        request.setBranch(getBranch(dto.getBranchId()));
+        request.setDepartment(getDepartment(dto.getDepartmentId()));
+        request.setRegion(getRegion(dto.getRegionId()));
+        Field[] fields = request.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            try {
+                Object value = field.get(request);
+                if (value != null) {
+                    Field employeeField = employee.getClass().getDeclaredField(field.getName());
+                    employeeField.setAccessible(true);
+                    employeeField.set(employee, value);
+                }
+            } catch (IllegalAccessException | NoSuchFieldException e) {
+                e.printStackTrace();
+            }
+        }
+        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(employee), null), 0);
+    }
+
+    public ResponseEntity<Object> deleteEmployee(Long id) {
+        Employee employee = getEmployee(id);
+        employee.setDeleted(true);
+        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(employee), null), 0);
+    }
+
+    public Employee getEmployee(Long id) {
+        return repo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee with id : " + id + " not found"));
+    }
+
+    public Employee getEmployeeByNip(String nip) {
+        return repo.findByNip(nip)
+                .orElseThrow(() -> new ResourceNotFoundException("Karyawan dengan NIP : " + nip + " tidak ditemukan"));
+    }
+
+    private Region getRegion(Long id) {
+        if (id == null)
+            return null;
+        return regionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Region with id : " + id + " not found"));
+    }
+
+    private Branch getBranch(Long id) {
+        if (id == null)
+            return null;
+        return branchRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Branch with id : " + id + " not found"));
+    }
+
+    private Department getDepartment(Long id) {
+        if (id == null)
+            return null;
+        return departmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Department with id : " + id + " not found"));
+    }
+
+}

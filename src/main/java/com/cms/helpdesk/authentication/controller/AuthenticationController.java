@@ -2,14 +2,17 @@ package com.cms.helpdesk.authentication.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cms.helpdesk.authentication.dto.AuthDto;
 import com.cms.helpdesk.authentication.service.AuthenticateService;
 import com.cms.helpdesk.common.path.BasePath;
+import com.cms.helpdesk.management.users.dto.request.RegisterDto;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
@@ -19,7 +22,7 @@ public class AuthenticationController {
 
     @Autowired
     private AuthenticateService service;
-    
+
     @PostMapping(value = BasePath.BASE_AUTHENTICATE)
     public ResponseEntity<Object> authenticate(@RequestBody AuthDto dto) {
         return service.authenticate(dto);
@@ -31,5 +34,5 @@ public class AuthenticationController {
         String jwtToken = tokenHeader.substring(7);
         return service.logout(jwtToken);
     }
-    
+
 }

@@ -1,4 +1,4 @@
-package com.cms.helpdesk.management.users.dto;
+package com.cms.helpdesk.management.users.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,9 +10,6 @@ public class ReqUserDTO {
     @NotBlank(message = "NIP Should Not be Empty")
     private String nip;
 
-    @NotBlank(message = "Name Should Not be Empty")
-    private String name;
-
     @NotBlank(message = "Email Should Not be Empty")
     private String email;
 
@@ -22,9 +19,7 @@ public class ReqUserDTO {
     @NotNull(message = "Role Should Not be Empty")
     private Long roleId;
 
-    private Long departmentId = null;
-    private Long regionId = null;
-    private Long branchId = null;
+    private boolean isApprove;
 
     // private Long main_id = null;
 }

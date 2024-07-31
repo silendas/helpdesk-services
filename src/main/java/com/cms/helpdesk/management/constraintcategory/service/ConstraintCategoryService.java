@@ -65,11 +65,6 @@ public class ConstraintCategoryService {
 
         if (dto.getDepartmentId() != null && dto.getDepartmentId() != 0) {
             Department department = getDepartment(dto.getDepartmentId());
-            if (department == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new GlobalDto(HttpStatus.BAD_REQUEST.value(), null, "Invalid Department ID", null, null,
-                                null));
-            }
             constraint.setDepartmentId(department);
         }
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
