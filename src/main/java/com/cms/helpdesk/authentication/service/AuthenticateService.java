@@ -55,7 +55,7 @@ public class AuthenticateService {
                 }
                 authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(
-                                user.getUsername(),
+                                user.getNip(),
                                 dto.getPassword()));
                 var jwtToken = jwtService.generateToken(user);
                 return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_LOGIN.getStatusCode(), jwtToken,

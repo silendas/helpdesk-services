@@ -31,7 +31,7 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService userDetailsService(RestTemplate restTemplate,
             JwtService jwtService) {
-        return email -> userRepository.findByEmail(email)
+        return nip -> userRepository.findByNip(nip)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
