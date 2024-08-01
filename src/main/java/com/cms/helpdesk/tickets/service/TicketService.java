@@ -37,6 +37,7 @@ import com.cms.helpdesk.management.users.model.Employee;
 import com.cms.helpdesk.management.users.model.User;
 import com.cms.helpdesk.management.users.repository.EmployeeRepository;
 import com.cms.helpdesk.management.users.repository.UserRepository;
+import com.cms.helpdesk.tickets.dto.CloseTicketDTO;
 import com.cms.helpdesk.tickets.dto.CreateTicketDTO;
 import com.cms.helpdesk.tickets.dto.ProcessTicketDTO;
 import com.cms.helpdesk.tickets.model.Ticket;
@@ -186,6 +187,27 @@ public class TicketService {
             return Response.buildResponse(new GlobalDto(Message.UNAUTORIZED_TICKET.getStatusCode(), null,
                     Message.UNAUTORIZED_TICKET.getMessage(), null, null, null), 0);
         }
+    }
+
+    public ResponseEntity<Object> closedTicket(Long id, CloseTicketDTO dto) {
+        User getUserData = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userNip = getUserData.getEmployee().getNip();
+        Timestamp currentTime = Timestamp.from(Instant.now());
+
+        Ticket ticket = getTicket(id);
+        String processBy = ticket.getProcessBy();
+
+        if (processBy.equals(userNip)) {
+            ticket.setTimeCompletion(currentTime);
+            ticket.setDescriptionCompletion(dto.getDescriptionCompletion());
+            ticket.setStatus(StatusEnum.CLOSED);
+        } else {
+            return Response.buildResponse(new GlobalDto(Message.UNAUTORIZED_TICKET.getStatusCode(), null,
+                    Message.UNAUTORIZED_TICKET.getMessage(), null, null, null), 0);
+        }
+
+        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, ticketRepository.save(ticket), null), 0);
     }
 
     public Ticket getTicket(Long id) {
