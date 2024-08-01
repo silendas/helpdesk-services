@@ -19,6 +19,7 @@ import com.cms.helpdesk.config.jwt.JwtService;
 import com.cms.helpdesk.management.users.model.User;
 import com.cms.helpdesk.management.users.repository.UserRepository;
 import com.cms.helpdesk.management.users.service.EmployeeService;
+import com.cms.helpdesk.management.users.service.UserService;
 
 @Service
 public class AuthenticateService {
@@ -28,6 +29,9 @@ public class AuthenticateService {
 
         @Autowired
         private JwtService jwtService;
+
+        @Autowired
+        private UserService userService;
 
         @Autowired
         private AuthenticationManager authenticationManager;
@@ -52,11 +56,16 @@ public class AuthenticateService {
                         return Response.buildResponse(new GlobalDto(Message.FAILED_LOGIN.getStatusCode(), null,
                                         Message.FAILED_LOGIN.getMessage(), null, null, detail), 1);
                 }
+                if(user.isDeleted()){
+                        detail.add("Akun anda telah ditidak aktifkan");
+                        return Response.buildResponse(new GlobalDto(Message.FAILED_LOGIN.getStatusCode(), null,
+                                        Message.FAILED_LOGIN.getMessage(), null, null, detail), 1);
+                }
                 authenticationManager.authenticate(
                                 new UsernamePasswordAuthenticationToken(
                                                 user.getEmployee().getNip(),
                                                 dto.getPassword()));
-                var jwtToken = jwtService.generateToken(user);
+                var jwtToken = jwtService.generateToken(userService.buildResUser(user));
                 return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_LOGIN.getStatusCode(), jwtToken,
                                 Message.SUCCESSFULLY_LOGIN.getMessage(), null, null, null), 2);
         }

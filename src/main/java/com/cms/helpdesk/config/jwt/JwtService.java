@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import com.cms.helpdesk.management.users.model.User;
+import com.cms.helpdesk.management.users.dto.response.UserRes;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -67,12 +67,12 @@ public class JwtService {
         blacklist.clear();
     }
 
-    public String generateToken(User user) {
+    public String generateToken(UserRes user) {
         Map<String, Object> extraClaim = new HashMap<>();
         extraClaim.put("user", user);
         return Jwts.builder()
                 .setClaims(extraClaim)
-                .setSubject(user.getEmployee().getNip())
+                .setSubject(user.getNip())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours expiry
                 .signWith(SignatureAlgorithm.HS256, Base64.getDecoder().decode(secret))

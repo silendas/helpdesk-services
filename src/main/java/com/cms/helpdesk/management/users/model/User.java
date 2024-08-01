@@ -34,6 +34,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 public class User extends BaseEntity implements UserDetails {
 
+    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

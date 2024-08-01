@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -29,29 +30,26 @@ public class EmployeeController {
 
     @GetMapping
     public ResponseEntity<Object> getEmployees(
-        @RequestParam("pageable") Optional<Boolean> pageable,
-        @RequestParam("page") Optional<Integer> page,
-        @RequestParam("size") Optional<Integer> size
-    ) {
+            @RequestParam("pageable") Optional<Boolean> pageable,
+            @RequestParam("page") Optional<Integer> page,
+            @RequestParam("size") Optional<Integer> size) {
         return service.getEmployees(pageable.orElse(false), page.orElse(0), size.orElse(10));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getEmployeeById(
-        @RequestParam("nip") String nip
-    ) {
+            @RequestParam("nip") String nip) {
         return service.getEmployeeById(nip);
     }
 
     @GetMapping("/validate")
     public ResponseEntity<Object> getEmployeeByNip(
-        @RequestParam("nip") String nip
-    ) {
+            @RequestParam("nip") String nip) {
         return service.getEmployeeByNIP(nip);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createEmployee(@Valid @RequestBody ReqEmployeeDTO dto){
+    public ResponseEntity<Object> createEmployee(@Valid @RequestBody ReqEmployeeDTO dto) {
         return service.saveEmployee(dto);
     }
 
@@ -60,9 +58,10 @@ public class EmployeeController {
         return service.updateEmployee(dto, nip);
     }
 
+    @PreAuthorize("hasRole('SUPERADMIN')")
     @DeleteMapping("/{nip}/delete")
     public ResponseEntity<Object> deleteUser(@PathVariable("nip") String nip) {
         return service.deleteEmployee(nip);
     }
-    
+
 }

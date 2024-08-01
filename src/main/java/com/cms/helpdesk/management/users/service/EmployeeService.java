@@ -1,7 +1,5 @@
 package com.cms.helpdesk.management.users.service;
 
-import java.lang.reflect.Field;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +13,7 @@ import com.cms.helpdesk.common.response.Response;
 import com.cms.helpdesk.common.response.dto.GlobalDto;
 import com.cms.helpdesk.common.reuse.Filter;
 import com.cms.helpdesk.common.reuse.PageConvert;
+import com.cms.helpdesk.common.reuse.PatchField;
 import com.cms.helpdesk.management.branch.model.Branch;
 import com.cms.helpdesk.management.branch.repository.BranchRepository;
 import com.cms.helpdesk.management.departments.model.Department;
@@ -74,13 +73,7 @@ public class EmployeeService {
     }
 
     public ResponseEntity<Object> saveEmployee(ReqEmployeeDTO dto) {
-        Employee employee = new Employee();
-        employee.setNip(dto.getNip());
-        employee.setName(dto.getName());
-        employee.setPhone(dto.getPhone());
-        employee.setBranch(getBranch(dto.getBranchId()));
-        employee.setDepartment(getDepartment(dto.getDepartmentId()));
-        employee.setRegion(getRegion(dto.getRegionId()));
+        Employee employee = buildReqToEmployee(dto);
         employee.setRegistered(false);
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(employee), null), 0);
@@ -88,29 +81,10 @@ public class EmployeeService {
 
     public ResponseEntity<Object> updateEmployee(ReqEmployeeDTO dto, String nip) {
         Employee employee = getEmployee(nip);
-        Employee request = new Employee();
-        request.setNip(dto.getNip());
-        request.setName(dto.getName());
-        request.setPhone(dto.getPhone());
-        request.setBranch(getBranch(dto.getBranchId()));
-        request.setDepartment(getDepartment(dto.getDepartmentId()));
-        request.setRegion(getRegion(dto.getRegionId()));
-        Field[] fields = request.getClass().getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            try {
-                Object value = field.get(request);
-                if (value != null) {
-                    Field employeeField = employee.getClass().getDeclaredField(field.getName());
-                    employeeField.setAccessible(true);
-                    employeeField.set(employee, value);
-                }
-            } catch (IllegalAccessException | NoSuchFieldException e) {
-                e.printStackTrace();
-            }
-        }
+        Employee request = buildReqToEmployee(dto);
+        Employee fusion = new PatchField<Employee>().fusion(employee, request);
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(employee), null), 0);
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(fusion), null), 0);
     }
 
     public ResponseEntity<Object> deleteEmployee(String nip) {
@@ -118,6 +92,17 @@ public class EmployeeService {
         employee.setDeleted(true);
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(employee), null), 0);
+    }
+
+    public Employee buildReqToEmployee(ReqEmployeeDTO dto) {
+        Employee request = new Employee();
+        request.setNip(dto.getNip());
+        request.setName(dto.getName());
+        request.setPhone(dto.getPhone());
+        request.setBranch(getBranch(dto.getBranchId()));
+        request.setDepartment(getDepartment(dto.getDepartmentId()));
+        request.setRegion(getRegion(dto.getRegionId()));
+        return request;
     }
 
     public Employee getEmployee(String nip) {
@@ -130,21 +115,21 @@ public class EmployeeService {
                 .orElseThrow(() -> new ResourceNotFoundException("Karyawan dengan NIP : " + nip + " tidak ditemukan"));
     }
 
-    private Region getRegion(Long id) {
+    public Region getRegion(Long id) {
         if (id == null)
             return null;
         return regionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Region with id : " + id + " not found"));
     }
 
-    private Branch getBranch(Long id) {
+    public Branch getBranch(Long id) {
         if (id == null)
             return null;
         return branchRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Branch with id : " + id + " not found"));
     }
 
-    private Department getDepartment(Long id) {
+    public Department getDepartment(Long id) {
         if (id == null)
             return null;
         return departmentRepository.findById(id)

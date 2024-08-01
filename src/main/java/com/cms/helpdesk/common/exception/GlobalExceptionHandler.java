@@ -5,6 +5,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -143,6 +144,19 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
         GlobalDto errorDetails = new GlobalDto();
         errorDetails.setMessage(Message.EXCEPTION_BAD_REQUEST.getMessage());
         errorDetails.setStatus(Message.EXCEPTION_BAD_REQUEST.getStatusCode());
+        errorDetails.setDetails(details);
+
+        return Response.buildResponse(errorDetails, 3);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public final ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+        List<String> details = new ArrayList<>();
+        details.add(ex.getMessage());
+
+        GlobalDto errorDetails = new GlobalDto();
+        errorDetails.setMessage(Message.EXCEPTION_ACCESS_DENIED.getMessage());
+        errorDetails.setStatus(Message.EXCEPTION_ACCESS_DENIED.getStatusCode());
         errorDetails.setDetails(details);
 
         return Response.buildResponse(errorDetails, 3);

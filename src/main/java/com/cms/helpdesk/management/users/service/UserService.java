@@ -1,6 +1,5 @@
 package com.cms.helpdesk.management.users.service;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -20,10 +19,12 @@ import com.cms.helpdesk.common.response.Response;
 import com.cms.helpdesk.common.response.dto.GlobalDto;
 import com.cms.helpdesk.common.reuse.Filter;
 import com.cms.helpdesk.common.reuse.PageConvert;
+import com.cms.helpdesk.common.reuse.PatchField;
 import com.cms.helpdesk.common.utils.EmailUtil;
 import com.cms.helpdesk.management.roles.model.Role;
 import com.cms.helpdesk.management.roles.repository.RoleRepository;
 import com.cms.helpdesk.management.users.dto.request.RegisterDto;
+import com.cms.helpdesk.management.users.dto.request.ReqEmployeeDTO;
 import com.cms.helpdesk.management.users.dto.request.ReqResetPassword;
 import com.cms.helpdesk.management.users.dto.request.ReqUserDTO;
 import com.cms.helpdesk.management.users.dto.response.OrganizeRes;
@@ -31,6 +32,7 @@ import com.cms.helpdesk.management.users.dto.response.UserRes;
 import com.cms.helpdesk.management.users.model.Employee;
 import com.cms.helpdesk.management.users.model.Registration;
 import com.cms.helpdesk.management.users.model.User;
+import com.cms.helpdesk.management.users.repository.EmployeeRepository;
 import com.cms.helpdesk.management.users.repository.PaginateUser;
 import com.cms.helpdesk.management.users.repository.RegistrationRepository;
 import com.cms.helpdesk.management.users.repository.UserRepository;
@@ -54,6 +56,9 @@ public class UserService {
     private RoleRepository roleRepository;
 
     @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
     private EmployeeService employeeService;
 
     @Autowired
@@ -65,13 +70,19 @@ public class UserService {
     @Value("${link.forgotpassword}")
     private String linkForgotPassword;
 
-    public ResponseEntity<Object> getUsers(int page, int size) {
+    public ResponseEntity<Object> getUsers(boolean pageable, int page, int size) {
         Specification<User> spec = Specification
-                .where(new Filter<User>().orderByIdDesc());
-        Page<User> res = paginate.findAll(spec, PageRequest.of(page, size));
-        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res), buildResUsers(res.getContent()),
-                null), 1);
+                .where(new Filter<User>().orderByIdDesc())
+                .and(new Filter<User>().isNotDeleted());
+        if (pageable) {
+            Page<User> res = paginate.findAll(spec, PageRequest.of(page, size));
+            return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                    Message.SUCCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res), buildResUsers(res.getContent()),
+                    null), 1);
+        } else {
+            return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                    Message.SUCCESSFULLY_DEFAULT.getMessage(), null, buildResUsers(userRepository.findAll()), null), 1);
+        }
     }
 
     public ResponseEntity<Object> getUserById(Long id) {
@@ -80,50 +91,43 @@ public class UserService {
     }
 
     public ResponseEntity<Object> createUser(ReqUserDTO dto) {
+        Role role = getRole(dto.getRoleId());
+
+        Employee employee = employeeService.buildReqToEmployee(new ReqEmployeeDTO(dto.getNip(), dto.getName(), dto.getPhone(), dto.getDepartmentId(), dto.getRegionId(), dto.getBranchId()));
+        employee.setRegistered(true);
 
         User user = new User();
-        user.setEmployee(employeeService.getEmployeeByNip(dto.getNip()));
+        user.setEmployee(employeeRepository.save(employee));
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setRole(getRole(dto.getRoleId()));
+        user.setRole(role);
         user.setApprove(true);
-
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, userRepository.save(user), null), 0);
     }
 
-    public ResponseEntity<Object> updateUser(Long id, ReqUserDTO dto) {
-        User user = getUser(id);
-        User request = new User();
-        request.setEmployee(employeeService.getEmployeeByNip(dto.getNip()));
-        request.setEmail(dto.getEmail());
-        request.setPassword(passwordEncoder.encode(dto.getPassword()));
-        request.setRole(getRole(dto.getRoleId()));
-        request.setApprove(dto.isApprove());
-        Field[] fields = request.getClass().getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            try {
-                Object value = field.get(request);
-                if (value != null) {
-                    Field userField = user.getClass().getDeclaredField(field.getName());
-                    userField.setAccessible(true);
-                    userField.set(user, value);
-                }
-            } catch (IllegalAccessException | NoSuchFieldException e) {
-                e.printStackTrace();
-            }
-        }
-        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, userRepository.save(user), null), 0);
-    }
+    public ResponseEntity<Object> updateUser(String nip, ReqUserDTO dto) {
+        User user = getUserByNip(nip);
 
-    public ResponseEntity<Object> deleteUser(Long id) {
-        User user = getUser(id);
-        user.setDeleted(true);
-        userRepository.save(user);
+        Employee employee = user.getEmployee();
+        Employee reqEmployee = employeeService.buildReqToEmployee(new ReqEmployeeDTO(dto.getNip(), dto.getName(), dto.getPhone(), dto.getDepartmentId(), dto.getRegionId(), dto.getBranchId()));
+        employeeRepository.save(new PatchField<Employee>().fusion(employee, reqEmployee));
+
+        User reqUser = new User();
+        reqUser.setEmail(dto.getEmail());
+        reqUser.setPassword(passwordEncoder.encode(dto.getPassword()));
+        reqUser.setRole(getRole(dto.getRoleId()));
+        reqUser.setApprove(dto.isApprove());
+        userRepository.save(new PatchField<User>().fusion(user, reqUser));
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, null, null), 0);
+    }
+
+    public ResponseEntity<Object> deleteUser(String nip) {
+        User user = getUserByNip(nip);
+        user.setDeleted(true);
+        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, userRepository.save(user), null), 0);
     }
 
     public ResponseEntity<Object> register(RegisterDto dto) {
@@ -149,13 +153,11 @@ public class UserService {
         try {
             User user = userRepository.findByEmailOrNip(nipOrEmail, nipOrEmail)
                     .orElseThrow(() -> new ResourceNotFoundException("User tidak di temukan"));
-
             String email = user.getEmail();
             String encodedString = Base64.getEncoder().encodeToString(user.getEmployee().getNip().getBytes());
-
-            String bodyHtml = generateLinkForgotPass(user.getEmployee().getName(), linkForgotPassword + "/" + encodedString);
+            String bodyHtml = generateLinkForgotPass(user.getEmployee().getName(),
+                    linkForgotPassword + "/" + encodedString);
             emailUtil.sendEmail(email, "LINK RESET PASSWORD", bodyHtml, true, null);
-
             return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_REGISTER.getStatusCode(), null,
                     "Link reset password telah dikirim ke " + email, null, null, null), 0);
         } catch (Exception e) {
@@ -165,20 +167,16 @@ public class UserService {
     }
 
     public ResponseEntity<Object> forgotPassword(ReqResetPassword dto) {
-        try {
-            userRepository.resetPasswordUser(passwordEncoder.encode(dto.getPassword()),
-                    dto.getNip());
-            return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_REGISTER.getStatusCode(), null,
-                    Message.SUCCESSFULLY_REGISTER.getMessage(), null, null, null), 0);
-        } catch (Exception e) {
-            return Response.buildResponse(new GlobalDto(404, null, "NIP Tidak Terdaftar", null, null, null), 3);
-        }
+        userRepository.resetPasswordUser(passwordEncoder.encode(dto.getPassword()),
+                dto.getNip());
+        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_REGISTER.getStatusCode(), null,
+                Message.SUCCESSFULLY_REGISTER.getMessage(), null, null, null), 0);
     }
 
     private String generateLinkForgotPass(String name, String link) {
         String bodyHtml = emailUtil.readHtmlTemplate("forgot_password.html");
         return bodyHtml.replace("{USER}", name).replace("{LINK}", link);
-    }
+    } 
 
     private List<UserRes> buildResUsers(List<User> user) {
         List<UserRes> res = new ArrayList<>();
@@ -188,12 +186,12 @@ public class UserService {
         return res;
     }
 
-    private UserRes buildResUser(User user) {
+    public UserRes buildResUser(User user) {
         UserRes res = new UserRes();
-        res.setId(user.getId());
         res.setNip(user.getEmployee().getNip());
         res.setName(user.getEmployee().getName());
         res.setEmail(user.getEmail());
+        res.setIsApprove(user.isApprove());
         res.setRole(user.getRole());
 
         OrganizeRes organizeRes = new OrganizeRes();

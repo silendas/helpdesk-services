@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Message {
 
-    // Proccess
+    // Process
     SUCCESSFULLY_DEFAULT(200, "Proses Berhasil"),
     NOT_FOUND_DEFAULT(404, "Data tidak ditemukan"),
     FAILED_DEFAULT(400, "Proses Gagal"),
@@ -22,6 +22,7 @@ public enum Message {
     FAILED_LOGIN(404, "Login Gagal"),
 
     // Exception
+    EXCEPTION_ACCESS_DENIED(403, "Akses tidak diperbolehkan"),
     EXCEPTION_NOT_FOUND(404, "Tidak ditemukan"),
     EXCEPTION_ALREADY_EXIST(302, "Data sudah ada"),
     EXCEPTION_BAD_REQUEST(400, "Request tidak sesuai"),

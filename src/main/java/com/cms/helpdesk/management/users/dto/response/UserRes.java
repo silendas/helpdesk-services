@@ -17,11 +17,11 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserRes {
 
-    private Long id;
     private String nip;
     private String name;
     private String email;
     private Role role;
+    private Boolean isApprove;
     private OrganizeRes organize;
     
 }

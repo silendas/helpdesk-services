@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
-			<version>0.11.5</version> <!-- or whatever version you're using -->
+			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -138,7 +138,7 @@
                 <spring.datasource.url>jdbc:postgresql://127.0.0.1:5432/db_helpdesk</spring.datasource.url>
                 <spring.datasource.username>postgres</spring.datasource.username>
                 <spring.datasource.password>admin</spring.datasource.password>
-        		<link.forgot.password>https://service-siap.cmsmaju.co.id/forgotpwdui</link.forgot.password>
+        		<link.forgot.password>http://192.168.10.52:9007/forgotpwdui</link.forgot.password>
 			</properties>
 		</profile>
 		<profile>
@@ -147,7 +147,7 @@
                 <spring.datasource.url>jdbc:postgresql://127.0.0.1:5432/</spring.datasource.url>
                 <spring.datasource.username>postgres</spring.datasource.username>
                 <spring.datasource.password>admin</spring.datasource.password>
-        		<link.forgot.password>https://service-siap.cmsmaju.co.id/forgotpwdui</link.forgot.password>
+        		<link.forgot.password>https://service-helpdesk.cmsmaju.co.id/forgotpwdui</link.forgot.password>
 			</properties>
 		</profile>
 	</profiles>
