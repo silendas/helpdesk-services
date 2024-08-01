@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cms.helpdesk.common.path.BasePath;
-import com.cms.helpdesk.management.users.dto.request.CreateEmployeeDTO;
 import com.cms.helpdesk.management.users.dto.request.ReqEmployeeDTO;
 import com.cms.helpdesk.management.users.service.EmployeeService;
 
@@ -44,15 +43,15 @@ public class EmployeeController {
         return service.getEmployeeById(nip);
     }
 
-    @GetMapping("/validation")
+    @GetMapping("/validate")
     public ResponseEntity<Object> getEmployeeByNip(
         @RequestParam("nip") String nip
     ) {
         return service.getEmployeeByNIP(nip);
     }
 
-    @PostMapping
-    public ResponseEntity<Object> createEmployee(@Valid @RequestBody CreateEmployeeDTO dto){
+    @PostMapping("/create")
+    public ResponseEntity<Object> createEmployee(@Valid @RequestBody ReqEmployeeDTO dto){
         return service.saveEmployee(dto);
     }
 

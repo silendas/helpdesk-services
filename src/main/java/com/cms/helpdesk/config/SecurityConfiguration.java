@@ -2,6 +2,7 @@ package com.cms.helpdesk.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -28,15 +29,23 @@ public class SecurityConfiguration {
                                 .csrf(AbstractHttpConfigurer::disable)
                                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtException))
                                 .authorizeHttpRequests(requests -> requests
-                                                .requestMatchers("/api/authenticate")
+                                                // .requestMatchers("/api/authenticate")
+                                                // .permitAll()
+                                                // .requestMatchers("/api/users/register")
+                                                // .permitAll()
+                                                // .requestMatchers("/api/otp/**")
+                                                // .permitAll()
+                                                // .requestMatchers("/api/users/forgotpwd")
+                                                // .permitAll()
+                                                // .requestMatchers("/forgotpwdui/**")
+                                                // .permitAll()
+                                                // .requestMatchers("/forgotpasssubmit")
+                                                // .permitAll()
+                                                // .requestMatchers("/swagger-ui/index.html")
+                                                // .permitAll()
+                                                .requestMatchers("/**")
                                                 .permitAll()
-                                                .requestMatchers("/api/users/register")
-                                                .permitAll()
-                                                .requestMatchers("/api/otp/**")
-                                                .permitAll()
-                                                .requestMatchers("/swagger-ui/index.html")
-                                                .permitAll()
-                                                .requestMatchers("/api-docs")
+                                                .requestMatchers(HttpMethod.OPTIONS, "/**")
                                                 .permitAll()
                                                 .anyRequest()
                                                 .authenticated())

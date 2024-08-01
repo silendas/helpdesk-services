@@ -21,5 +21,14 @@ public class ReqUserDTO {
 
     private boolean isApprove;
 
-    // private Long main_id = null;
+    private String name;
+
+    private String phone;
+
+    private Long departmentId = null;
+
+    private Long regionId = null;
+    
+    private Long branchId = null;
+
 }

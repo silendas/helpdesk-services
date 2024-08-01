@@ -6,13 +6,11 @@ import lombok.Data;
 @Data
 public class ReqEmployeeDTO {
     
-    @NotBlank(message = "NIP Should Not be Empty")
+    @NotBlank(message = "NIP tidak boleh kosong")
     private String nip;
 
-    @NotBlank(message = "Name Should Not be Empty")
     private String name;
 
-    @NotBlank(message = "Phone Should Not be Empty")
     private String phone;
 
     private Long departmentId = null;

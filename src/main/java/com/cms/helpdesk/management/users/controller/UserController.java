@@ -36,6 +36,17 @@ public class UserController {
         return service.getUsers(page.orElse(0), size.orElse(10));
     }
 
+    @GetMapping("/forgotpwd")
+    public ResponseEntity<Object> forgotPassword(@RequestParam("email") String email, @RequestParam("nip") String nip) {
+        String nipOrEmail;
+        if (nip != null) {
+            nipOrEmail = nip;
+        } else {
+            nipOrEmail = email;
+        }
+        return service.createLinkForgotPassword(nipOrEmail);
+    }
+
     @PostMapping("/register")
     public ResponseEntity<Object> createUser(@Valid @RequestBody RegisterDto dto) {
         return service.register(dto);

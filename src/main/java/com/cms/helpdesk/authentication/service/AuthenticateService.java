@@ -16,7 +16,6 @@ import com.cms.helpdesk.common.response.Message;
 import com.cms.helpdesk.common.response.Response;
 import com.cms.helpdesk.common.response.dto.GlobalDto;
 import com.cms.helpdesk.config.jwt.JwtService;
-import com.cms.helpdesk.management.users.model.Employee;
 import com.cms.helpdesk.management.users.model.User;
 import com.cms.helpdesk.management.users.repository.UserRepository;
 import com.cms.helpdesk.management.users.service.EmployeeService;
@@ -41,37 +40,31 @@ public class AuthenticateService {
 
         public ResponseEntity<Object> authenticate(AuthDto dto) {
                 User user = repo.findByEmailOrNip(dto.getUsername(), dto.getUsername())
-                        .orElseThrow(() -> new ResourceNotFoundException("Email atau NIP tidak ditemukan"));
+                                .orElseThrow(() -> new ResourceNotFoundException("Email atau NIP tidak ditemukan"));
                 List<String> detail = new ArrayList<>();
-                if (!user.isApprove()) {
-                    detail.add("Akun anda belum di approve");
-                    return Response.buildResponse(new GlobalDto(Message.FAILED_LOGIN.getStatusCode(), null,
-                            Message.FAILED_LOGIN.getMessage(), null, null, detail), 1);
-                }
                 if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-                    detail.add("Password anda salah");
-                    return Response.buildResponse(new GlobalDto(Message.FAILED_LOGIN.getStatusCode(), null,
-                            Message.FAILED_LOGIN.getMessage(), null, null, detail), 1);
+                        detail.add("Password anda salah");
+                        return Response.buildResponse(new GlobalDto(Message.FAILED_LOGIN.getStatusCode(), null,
+                                        Message.FAILED_LOGIN.getMessage(), null, null, detail), 1);
+                }
+                if (!user.isApprove()) {
+                        detail.add("Akun anda belum di approve");
+                        return Response.buildResponse(new GlobalDto(Message.FAILED_LOGIN.getStatusCode(), null,
+                                        Message.FAILED_LOGIN.getMessage(), null, null, detail), 1);
                 }
                 authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(
-                                user.getEmployee().getNip(),
-                                dto.getPassword()));
+                                new UsernamePasswordAuthenticationToken(
+                                                user.getEmployee().getNip(),
+                                                dto.getPassword()));
                 var jwtToken = jwtService.generateToken(user);
                 return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_LOGIN.getStatusCode(), jwtToken,
-                        Message.SUCCESSFULLY_LOGIN.getMessage(), null, null, null), 2);
-            }
+                                Message.SUCCESSFULLY_LOGIN.getMessage(), null, null, null), 2);
+        }
 
         public ResponseEntity<Object> logout(String token) {
                 jwtService.blacklistToken(token);
                 return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_LOGOUT.getStatusCode(), null,
                                 Message.SUCCESSFULLY_LOGOUT.getMessage(), null, null, null), 0);
-        }
-
-        public ResponseEntity<Object> nipExist(String nip) {
-                Employee employee = employeeService.getEmployeeByNip(nip);
-                return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, employee, null), 1);
         }
 
 }

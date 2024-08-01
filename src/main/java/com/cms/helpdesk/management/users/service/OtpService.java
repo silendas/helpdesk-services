@@ -56,14 +56,14 @@ public class OtpService {
             otp = OtpUtil.generateDigitOTP();
         } while (repo.countByOtp(otp) > 0);
 
-        Registration registration = repo.findByEmail(dto.getEmail());
+        Registration registration = repo.findByEmailLimitDesc(dto.getEmail());
         registration.setOtp(otp);
         repo.save(registration);
 
-        String email = registration.getName();
+        String email = registration.getEmail();
         String bodyHtml = generateOtpEmailBody(registration.getName(), otp);
         emailUtil.sendEmail(email, "OTP", bodyHtml, true, null);
-        return Response.buildResponse(new GlobalDto(200, null, "OTP has been sent to your email", null, null, null), 1);
+        return Response.buildResponse(new GlobalDto(200, null, "OTP telah dikirim ke " + email, null, null, null), 0);
     }
 
     public ResponseEntity<Object> verifyOtp(VerifyOtpDTO dto) {
@@ -80,7 +80,7 @@ public class OtpService {
         User user = new User();
         user.setEmployee(getEmployeeByNip(registration.getNip()));
         user.setEmail(registration.getEmail());
-        user.setPassword(registration.getNip());
+        user.setPassword(registration.getPassword());
         user.setApprove(false);
         user.setOtp(registration.getOtp());
         user.setRegistration(registration);
@@ -89,7 +89,6 @@ public class OtpService {
 
     public void updateEmployee(Registration registration) {
         Employee employee = getEmployeeByNip(registration.getNip());
-        employee.setNip(registration.getNip());
         employee.setRegistered(true);
         employee.setName(registration.getName());
         employee.setPhone(registration.getPhone());

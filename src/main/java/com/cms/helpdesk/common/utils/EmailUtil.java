@@ -2,8 +2,10 @@ package com.cms.helpdesk.common.utils;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -12,6 +14,9 @@ import org.springframework.stereotype.Component;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.MessagingException;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @Component
 @Slf4j
@@ -19,7 +24,7 @@ public class EmailUtil {
     
     @Autowired
     private JavaMailSender emailSender;
-    
+
     @Autowired
     private ResourceLoader resourceLoader;
 
@@ -45,13 +50,13 @@ public class EmailUtil {
         }
     }
 
-    // public  String readHtmlTemplate(String templateFileName) {
-    //     Resource resource = resourceLoader.getResource("classpath:templates/" + templateFileName);
-    //     try (InputStream inputStream = resource.getInputStream()) {
-    //         return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-    //     } catch (IOException e) {
-    //         log.error("error", e);
-    //         throw new RuntimeException(e);
-    //     }
-    // }
+    public  String readHtmlTemplate(String templateFileName) {
+        Resource resource = resourceLoader.getResource("classpath:templates/" + templateFileName);
+        try (InputStream inputStream = resource.getInputStream()) {
+            return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.error("error", e);
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -21,7 +21,6 @@ import com.cms.helpdesk.management.departments.model.Department;
 import com.cms.helpdesk.management.departments.repository.DepartmentRepository;
 import com.cms.helpdesk.management.regions.model.Region;
 import com.cms.helpdesk.management.regions.repository.RegionRepository;
-import com.cms.helpdesk.management.users.dto.request.CreateEmployeeDTO;
 import com.cms.helpdesk.management.users.dto.request.ReqEmployeeDTO;
 import com.cms.helpdesk.management.users.model.Employee;
 import com.cms.helpdesk.management.users.repository.EmployeeRepository;
@@ -74,9 +73,14 @@ public class EmployeeService {
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, employee, null), 1);
     }
 
-    public ResponseEntity<Object> saveEmployee(CreateEmployeeDTO dto) {
+    public ResponseEntity<Object> saveEmployee(ReqEmployeeDTO dto) {
         Employee employee = new Employee();
         employee.setNip(dto.getNip());
+        employee.setName(dto.getName());
+        employee.setPhone(dto.getPhone());
+        employee.setBranch(getBranch(dto.getBranchId()));
+        employee.setDepartment(getDepartment(dto.getDepartmentId()));
+        employee.setRegion(getRegion(dto.getRegionId()));
         employee.setRegistered(false);
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(employee), null), 0);

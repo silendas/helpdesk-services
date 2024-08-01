@@ -16,5 +16,6 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
     @Query("SELECT r FROM Registration r WHERE r.nip = ?1 ORDER BY r.id DESC LIMIT 1")
     Optional<Registration> findByNipLimit1Desc(String nip);
 
-    Registration findByEmail(String email);
+    @Query("SELECT r FROM Registration r WHERE r.email = ?1 ORDER BY r.id DESC LIMIT 1")
+    Registration findByEmailLimitDesc(String email);
 }
