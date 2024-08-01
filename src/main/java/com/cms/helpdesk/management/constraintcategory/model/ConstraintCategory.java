@@ -3,6 +3,7 @@ package com.cms.helpdesk.management.constraintcategory.model;
 import com.cms.helpdesk.common.model.BaseEntity;
 import com.cms.helpdesk.enums.PriorityEnum;
 import com.cms.helpdesk.management.departments.model.Department;
+import com.cms.helpdesk.management.targetcompletion.model.TargetCompletion;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,5 +45,9 @@ public class ConstraintCategory extends BaseEntity {
 
     @Column(name = "name")
     private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "target_completion_id")
+    private TargetCompletion targetCompletionId;
 
 }

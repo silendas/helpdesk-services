@@ -1,5 +1,6 @@
 package com.cms.helpdesk.management.constraintcategory.service;
 
+import java.lang.reflect.Field;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +21,8 @@ import com.cms.helpdesk.management.constraintcategory.repository.ConstraintCateg
 import com.cms.helpdesk.management.constraintcategory.repository.PaginateConstraintCategory;
 import com.cms.helpdesk.management.departments.model.Department;
 import com.cms.helpdesk.management.departments.repository.DepartmentRepository;
+import com.cms.helpdesk.management.targetcompletion.model.TargetCompletion;
+import com.cms.helpdesk.management.targetcompletion.repository.TargetCompletionRepository;
 
 @Service
 public class ConstraintCategoryService {
@@ -29,6 +32,9 @@ public class ConstraintCategoryService {
 
     @Autowired
     DepartmentRepository departmentRepository;
+
+    @Autowired
+    TargetCompletionRepository targetCompletionRepository;
 
     @Autowired
     PaginateConstraintCategory paginate;
@@ -47,6 +53,7 @@ public class ConstraintCategoryService {
         constraintCategory.setName(dto.getName());
         constraintCategory.setPriority(dto.getPriority());
         constraintCategory.setDepartmentId(getDepartment(dto.getDepartmentId()));
+        constraintCategory.setTargetCompletionId(getTargetCompletion(dto.getTargetCompletionId()));
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, constraintRepository.save(constraintCategory),
                 null), 0);
@@ -55,18 +62,28 @@ public class ConstraintCategoryService {
     public ResponseEntity<Object> updateConstraint(Long id, ConstraintCategoryDTO dto) {
         ConstraintCategory constraint = getConstraint(id);
 
-        if (dto.getName() != null && !dto.getName().isEmpty()) {
-            constraint.setName(dto.getName());
+        ConstraintCategory request = new ConstraintCategory();
+
+        request.setName(dto.getName());
+        request.setPriority(dto.getPriority());
+        request.setDepartmentId(getDepartment(dto.getDepartmentId()));
+        request.setTargetCompletionId(getTargetCompletion(dto.getTargetCompletionId()));
+
+        Field[] fields = request.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            try {
+                Object value = field.get(request);
+                if (value != null) {
+                    Field constraintCatField = constraint.getClass().getDeclaredField(field.getName());
+                    constraintCatField.setAccessible(true);
+                    constraintCatField.set(constraint, value);
+                }
+            } catch (IllegalAccessException | NoSuchFieldException e) {
+                e.printStackTrace();
+            }
         }
 
-        if (dto.getPriority() != null) {
-            constraint.setPriority(dto.getPriority());
-        }
-
-        if (dto.getDepartmentId() != null && dto.getDepartmentId() != 0) {
-            Department department = getDepartment(dto.getDepartmentId());
-            constraint.setDepartmentId(department);
-        }
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, constraintRepository.save(constraint), null), 0);
 
@@ -89,5 +106,10 @@ public class ConstraintCategoryService {
     public Department getDepartment(Long id) {
         return departmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
+    }
+
+    public TargetCompletion getTargetCompletion(Long id) {
+        return targetCompletionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Target Completion not found"));
     }
 }

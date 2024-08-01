@@ -1,6 +1,7 @@
 package com.cms.helpdesk.management.targetcompletion.model;
 
 import com.cms.helpdesk.common.model.BaseEntity;
+import com.cms.helpdesk.enums.targetcompletion.TimeIntervalEnum;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,5 +28,9 @@ public class TargetCompletion extends BaseEntity {
     private String name;
 
     @Column(name = "value")
-    private String value;
+    private Integer value;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "time_interval")
+    private TimeIntervalEnum timeInterval;
 }

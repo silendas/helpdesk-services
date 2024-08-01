@@ -1,5 +1,7 @@
 package com.cms.helpdesk.management.targetcompletion.service;
 
+import java.lang.reflect.Field;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +42,7 @@ public class TargetCompletionService {
         TargetCompletion targetCompletion = new TargetCompletion();
         targetCompletion.setName(dto.getName());
         targetCompletion.setValue(dto.getValue());
+        targetCompletion.setTimeInterval(dto.getTimeInterval());
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, targetCompletionRepository.save(targetCompletion),
                 null), 0);
@@ -47,8 +50,27 @@ public class TargetCompletionService {
 
     public ResponseEntity<Object> updateTargetCompletion(Long id, TargetCompletionDTO dto) {
         TargetCompletion targetCompletion = gettTargetCompletion(id);
-        targetCompletion.setName(dto.getName());
-        targetCompletion.setValue(dto.getValue());
+        TargetCompletion request = new TargetCompletion();
+
+        request.setName(dto.getName());
+        request.setValue(dto.getValue());
+        request.setTimeInterval(dto.getTimeInterval());
+
+        Field[] fields = request.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            try {
+                Object value = field.get(request);
+                if (value != null) {
+                    Field targetCompletionField = targetCompletion.getClass().getDeclaredField(field.getName());
+                    targetCompletionField.setAccessible(true);
+                    targetCompletionField.set(targetCompletion, value);
+                }
+            } catch (IllegalAccessException | NoSuchFieldException e) {
+                e.printStackTrace();
+            }
+        }
+
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, targetCompletionRepository.save(targetCompletion),
                 null), 0);

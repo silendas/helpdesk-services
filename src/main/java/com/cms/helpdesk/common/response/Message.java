@@ -27,7 +27,10 @@ public enum Message {
     EXCEPTION_ALREADY_EXIST(302, "Data sudah ada"),
     EXCEPTION_BAD_REQUEST(400, "Request tidak sesuai"),
     EXCEPTION_NOT_SUPPORT_REQUEST(400, "Request tidak bisa dibaca"),
-    EXCEPTION_INTERNAL_SERVER_ERROR(500, "Internal Server Error");
+    EXCEPTION_INTERNAL_SERVER_ERROR(500, "Internal Server Error"),
+
+    // Ticket
+    UNAUTORIZED_TICKET(401, "Anda Tidak Memiliki Hak Untuk Proses Ticket!");
 
     private final int statusCode;
     private final String message;

@@ -17,4 +17,7 @@ public class ConstraintCategoryDTO {
 
     @NotNull(message = "Department should not be empty")
     private Long departmentId;
+
+    @NotNull(message = "Target Completion should not be empty")
+    private Long targetCompletionId;
 }

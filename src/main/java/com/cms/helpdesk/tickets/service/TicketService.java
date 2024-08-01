@@ -7,8 +7,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -27,8 +31,14 @@ import com.cms.helpdesk.management.departments.model.Department;
 import com.cms.helpdesk.management.departments.repository.DepartmentRepository;
 import com.cms.helpdesk.management.regions.model.Region;
 import com.cms.helpdesk.management.regions.repository.RegionRepository;
+import com.cms.helpdesk.management.targetcompletion.model.TargetCompletion;
+import com.cms.helpdesk.management.targetcompletion.repository.TargetCompletionRepository;
+import com.cms.helpdesk.management.users.model.Employee;
 import com.cms.helpdesk.management.users.model.User;
+import com.cms.helpdesk.management.users.repository.EmployeeRepository;
+import com.cms.helpdesk.management.users.repository.UserRepository;
 import com.cms.helpdesk.tickets.dto.CreateTicketDTO;
+import com.cms.helpdesk.tickets.dto.ProcessTicketDTO;
 import com.cms.helpdesk.tickets.model.Ticket;
 import com.cms.helpdesk.tickets.repository.PaginateTicket;
 import com.cms.helpdesk.tickets.repository.TicketRepository;
@@ -53,6 +63,15 @@ public class TicketService {
 
     @Autowired
     private ConstraintCategoryRepository constraintRepository;
+
+    @Autowired
+    private TargetCompletionRepository targetCompletionRepository;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public ResponseEntity<Object> getTickets(int page, int size) {
         Specification<Ticket> spec = Specification.where(new Filter<Ticket>().isNotDeleted())
@@ -129,6 +148,46 @@ public class TicketService {
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, ticketRepository.save(ticket), null), 0);
     }
 
+    public ResponseEntity<Object> processTicket(Long id, ProcessTicketDTO dto) {
+        User getUserData = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userRole = getUserData.getRole().getName();
+        Timestamp currentTime = Timestamp.from(Instant.now());
+
+        if (!userRole.equalsIgnoreCase("USER")) {
+            Ticket ticket = getTicket(id);
+
+            ConstraintCategory constraintCategory = ticket.getConstraintCategoryId();
+            TargetCompletion targetCompletion = constraintCategory.getTargetCompletionId();
+
+            Instant targetCompletionTime = currentTime.toInstant();
+            switch (targetCompletion.getTimeInterval()) {
+                case MINUTES:
+                    targetCompletionTime = targetCompletionTime.plus(targetCompletion.getValue().longValue(),
+                            ChronoUnit.MINUTES);
+                    break;
+                case HOURS:
+                    targetCompletionTime = targetCompletionTime.plus(targetCompletion.getValue().longValue(),
+                            ChronoUnit.HOURS);
+                    break;
+                case DAYS:
+                    targetCompletionTime = targetCompletionTime.plus(targetCompletion.getValue().longValue(),
+                            ChronoUnit.DAYS);
+                    break;
+            }
+
+            ticket.setProcessBy(getUserData.getEmployee().getNip());
+            ticket.setProcessAt(currentTime);
+            ticket.setTargetCompletion(Timestamp.from(targetCompletionTime));
+            ticket.setStatus(StatusEnum.PROGRESS);
+            System.out.println(Timestamp.from(targetCompletionTime));
+            return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                    Message.SUCCESSFULLY_DEFAULT.getMessage(), null, ticketRepository.save(ticket), null), 0);
+        } else {
+            return Response.buildResponse(new GlobalDto(Message.UNAUTORIZED_TICKET.getStatusCode(), null,
+                    Message.UNAUTORIZED_TICKET.getMessage(), null, null, null), 0);
+        }
+    }
+
     public Ticket getTicket(Long id) {
         return ticketRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Ticket Not Found"));
     }
@@ -162,4 +221,13 @@ public class TicketService {
                 .orElseThrow(() -> new ResourceNotFoundException("Constraint Not Found"));
     }
 
+    public TargetCompletion getTargetCompletion(Long id) {
+        return targetCompletionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Target Completion Not Found"));
+    }
+
+    public Employee getEmployee(String nip) {
+        return employeeRepository.findById(nip)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee with id : " + nip + " not found"));
+    }
 }
