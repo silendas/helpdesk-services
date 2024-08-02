@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cms.helpdesk.common.path.BasePath;
-import com.cms.helpdesk.management.branch.dto.request.BranchDTO;
 import com.cms.helpdesk.tickets.dto.CloseTicketDTO;
 import com.cms.helpdesk.tickets.dto.CreateTicketDTO;
 import com.cms.helpdesk.tickets.dto.ProcessTicketDTO;

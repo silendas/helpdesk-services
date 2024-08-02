@@ -12,6 +12,7 @@ import com.cms.helpdesk.common.response.Message;
 import com.cms.helpdesk.common.response.Response;
 import com.cms.helpdesk.common.response.dto.GlobalDto;
 import com.cms.helpdesk.management.users.dto.request.RegisterDto;
+import com.cms.helpdesk.management.users.dto.request.SendOtpDto;
 import com.cms.helpdesk.management.users.model.Employee;
 import com.cms.helpdesk.management.users.model.Registration;
 import com.cms.helpdesk.management.users.repository.RegistrationRepository;
@@ -28,6 +29,9 @@ public class RegisterService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private OtpService otpService;
+
     public ResponseEntity<Object> register(RegisterDto dto) {
         List<String> errors = new ArrayList<>();
         Employee employee = employeeService.getEmployeeByNip(dto.getNip());
@@ -43,8 +47,7 @@ public class RegisterService {
         regis.setName(dto.getName());
         regis.setPhone(dto.getPhone());
         registrationRepository.save(regis);
-        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_REGISTER.getStatusCode(), null,
-                Message.SUCCESSFULLY_REGISTER.getMessage(), null, null, null), 0);
+        return otpService.sendOtp(new SendOtpDto(dto.getEmail()));
     }
 
 }
