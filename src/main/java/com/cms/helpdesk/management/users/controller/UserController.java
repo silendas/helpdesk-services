@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cms.helpdesk.common.path.BasePath;
-import com.cms.helpdesk.management.users.dto.request.RegisterDto;
 import com.cms.helpdesk.management.users.dto.request.ReqUserDTO;
 import com.cms.helpdesk.management.users.service.UserService;
 
@@ -36,16 +35,6 @@ public class UserController {
             @RequestParam("page") Optional<Integer> page,
             @RequestParam("size") Optional<Integer> size) {
         return service.getUsers(pageable.orElse(false), page.orElse(0), size.orElse(10));
-    }
-
-    @GetMapping("/forgotpwd")
-    public ResponseEntity<Object> forgotPassword(@RequestParam("nipOrEmail") String nipOrEmail) {
-        return service.createLinkForgotPassword(nipOrEmail);
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<Object> createUser(@Valid @RequestBody RegisterDto dto) {
-        return service.register(dto);
     }
 
     @PostMapping("/create")

@@ -82,9 +82,8 @@ public class EmployeeService {
     public ResponseEntity<Object> updateEmployee(ReqEmployeeDTO dto, String nip) {
         Employee employee = getEmployee(nip);
         Employee request = buildReqToEmployee(dto);
-        Employee fusion = new PatchField<Employee>().fusion(employee, request);
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(fusion), null), 0);
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(new PatchField<Employee>().fusion(employee, request)), null), 0);
     }
 
     public ResponseEntity<Object> deleteEmployee(String nip) {

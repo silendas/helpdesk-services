@@ -9,19 +9,29 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.cms.helpdesk.common.path.BasePath;
 import com.cms.helpdesk.management.users.dto.request.ReqResetPassword;
+import com.cms.helpdesk.management.users.service.ForgotPasswordService;
 import com.cms.helpdesk.management.users.service.UserService;
 
 @Controller
 public class ForgotPasswordController {
 
     @Autowired
+    private ForgotPasswordService service;
+
+    @Autowired
     private UserService userService;
 
-    @RequestMapping( BasePath.BASE_FORGOT_PASSWORD + "/{nipEncode}")
+    @RequestMapping(value = BasePath.BASE_USERS + "/forgotpwd", method = RequestMethod.GET)
+    public ResponseEntity<Object> forgotPassword(@RequestParam("nipOrEmail") String nipOrEmail) {
+        return service.createLinkForgotPassword(nipOrEmail);
+    }
+
+    @RequestMapping(BasePath.BASE_FORGOT_PASSWORD + "/{nipEncode}")
     public ModelAndView doViewForgorPwd(ModelAndView modelAndView, @PathVariable("nipEncode") String nipEncode) {
         modelAndView.setViewName("forgotPassword");
         byte[] decodedBytes = Base64.getDecoder().decode(nipEncode);
@@ -33,7 +43,7 @@ public class ForgotPasswordController {
 
     @RequestMapping(value = BasePath.BASE_FORGOT_PASSWORD + "/forgotpasssubmit", method = RequestMethod.PUT)
     public ResponseEntity<Object> doSubmitForgotPassword(@RequestBody ReqResetPassword request) {
-        return userService.forgotPassword(request);
+        return service.forgotPassword(request);
     }
 
 }

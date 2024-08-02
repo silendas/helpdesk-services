@@ -13,7 +13,7 @@ public class PatchField<T> {
                 if (value != null) {
                     Field userField = existing.getClass().getDeclaredField(field.getName());
                     userField.setAccessible(true);
-                    userField.set(req, value);
+                    userField.set(existing, value); // Perbaikan di sini, set nilai ke objek existing
                 }
             } catch (IllegalAccessException | NoSuchFieldException e) {
                 e.printStackTrace();
@@ -21,5 +21,4 @@ public class PatchField<T> {
         }
         return existing;
     }
-
 }

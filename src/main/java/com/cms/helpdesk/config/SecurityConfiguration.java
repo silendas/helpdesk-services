@@ -37,6 +37,8 @@ public class SecurityConfiguration {
                                                 .permitAll()
                                                 .requestMatchers("/api/users/forgotpwd")
                                                 .permitAll()
+                                                .requestMatchers("/api/employee/validate")
+                                                .permitAll()
                                                 .requestMatchers("/forgotpwdui/**")
                                                 .permitAll()
                                                 .requestMatchers("/forgotpasssubmit")

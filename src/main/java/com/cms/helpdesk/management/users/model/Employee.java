@@ -40,7 +40,7 @@ public class Employee extends BaseEntity{
 
     @JsonIgnore
     @Column(name = "is_registered")
-    private boolean isRegistered;
+    private boolean registered;
 
     @ManyToOne
     @JoinColumn(name = "department_id", nullable = true)

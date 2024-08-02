@@ -42,12 +42,6 @@ public class EmployeeController {
         return service.getEmployeeById(nip);
     }
 
-    @GetMapping("/validate")
-    public ResponseEntity<Object> getEmployeeByNip(
-            @RequestParam("nip") String nip) {
-        return service.getEmployeeByNIP(nip);
-    }
-
     @PostMapping("/create")
     public ResponseEntity<Object> createEmployee(@Valid @RequestBody ReqEmployeeDTO dto) {
         return service.saveEmployee(dto);
