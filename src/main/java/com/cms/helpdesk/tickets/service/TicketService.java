@@ -1,20 +1,26 @@
 package com.cms.helpdesk.tickets.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.cms.helpdesk.common.exception.ResourceNotFoundException;
 import com.cms.helpdesk.common.response.Message;
@@ -22,6 +28,7 @@ import com.cms.helpdesk.common.response.Response;
 import com.cms.helpdesk.common.response.dto.GlobalDto;
 import com.cms.helpdesk.common.reuse.Filter;
 import com.cms.helpdesk.common.reuse.PageConvert;
+import com.cms.helpdesk.common.utils.ReportExcelUtil;
 import com.cms.helpdesk.enums.tickets.StatusEnum;
 import com.cms.helpdesk.management.branch.model.Branch;
 import com.cms.helpdesk.management.branch.repository.BranchRepository;
@@ -36,7 +43,6 @@ import com.cms.helpdesk.management.targetcompletion.repository.TargetCompletionR
 import com.cms.helpdesk.management.users.model.Employee;
 import com.cms.helpdesk.management.users.model.User;
 import com.cms.helpdesk.management.users.repository.EmployeeRepository;
-import com.cms.helpdesk.management.users.repository.UserRepository;
 import com.cms.helpdesk.tickets.dto.CloseTicketDTO;
 import com.cms.helpdesk.tickets.dto.CreateTicketDTO;
 import com.cms.helpdesk.tickets.dto.ProcessTicketDTO;
@@ -72,7 +78,7 @@ public class TicketService {
     private EmployeeRepository employeeRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private ReportExcelUtil reportUtil;
 
     public ResponseEntity<Object> getTickets(int page, int size) {
         Specification<Ticket> spec = Specification.where(new Filter<Ticket>().isNotDeleted())
@@ -208,6 +214,31 @@ public class TicketService {
 
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, ticketRepository.save(ticket), null), 0);
+    }
+
+     public ResponseEntity<InputStreamResource> downloadReport(@RequestParam Date start, @RequestParam Date end) {
+        Specification<Ticket> spec = Specification
+                .where(new Filter<Ticket>().isNotDeleted())
+                .and(new Filter<Ticket>().orderByIdAsc());
+        List<Ticket> tickets = ticketRepository.findAll(spec);
+
+        List<String> headers = Arrays.asList("Nomor Tiket", "Departemen", "Region", "Branch", "Kategori Kebutuhan", "Status", "Target Penyelesaian", "Waktu Proses", "Deskripsi");
+
+        List<Map<String, Object>> data = tickets.stream().map(ticket -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("Nomor Tiket", ticket.getTicketNumber());
+            map.put("Departemen", ticket.getDepartmentId() != null ? ticket.getDepartmentId().getName() : "-");
+            map.put("Region", ticket.getRegionId() != null ? ticket.getRegionId().getName() : "-");
+            map.put("Branch", ticket.getBranchId() != null ? ticket.getBranchId().getName() : "-");
+            map.put("Kategori Kebutuhan", ticket.getConstraintCategoryId() != null ? ticket.getConstraintCategoryId().getName() : "-");
+            map.put("Status", ticket.getStatus());
+            map.put("Target Penyelesaian", ticket.getTargetCompletion());
+            map.put("Waktu Proses", ticket.getProcessAt());
+            map.put("Deskripsi", ticket.getDescription());
+            return map;
+        }).collect(Collectors.toList());
+
+        return reportUtil.generate("Report Tickets", headers, data);
     }
 
     public Ticket getTicket(Long id) {

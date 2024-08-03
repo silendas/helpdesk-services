@@ -6,8 +6,6 @@ import com.cms.helpdesk.management.branch.model.Branch;
 import com.cms.helpdesk.management.constraintcategory.model.ConstraintCategory;
 import com.cms.helpdesk.management.departments.model.Department;
 import com.cms.helpdesk.management.regions.model.Region;
-import com.cms.helpdesk.management.users.model.Employee;
-import com.cms.helpdesk.management.users.model.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
