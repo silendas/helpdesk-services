@@ -1,7 +1,5 @@
 package com.cms.helpdesk.tickets.dto;
 
-import com.cms.helpdesk.enums.tickets.StatusEnum;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
