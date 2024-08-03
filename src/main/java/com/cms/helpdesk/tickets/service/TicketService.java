@@ -26,6 +26,7 @@ import com.cms.helpdesk.common.exception.ResourceNotFoundException;
 import com.cms.helpdesk.common.response.Message;
 import com.cms.helpdesk.common.response.Response;
 import com.cms.helpdesk.common.response.dto.GlobalDto;
+import com.cms.helpdesk.common.reuse.ConvertDate;
 import com.cms.helpdesk.common.reuse.Filter;
 import com.cms.helpdesk.common.reuse.PageConvert;
 import com.cms.helpdesk.common.utils.ReportExcelUtil;
@@ -216,13 +217,14 @@ public class TicketService {
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, ticketRepository.save(ticket), null), 0);
     }
 
-     public ResponseEntity<InputStreamResource> downloadReport(@RequestParam Date start, @RequestParam Date end) {
+    public ResponseEntity<InputStreamResource> downloadReport(Date start, Date end) {
         Specification<Ticket> spec = Specification
-                .where(new Filter<Ticket>().isNotDeleted())
+                .where(new Filter<Ticket>().createdAtBetween(start, end))
+                .and(new Filter<Ticket>().isNotDeleted())
                 .and(new Filter<Ticket>().orderByIdAsc());
         List<Ticket> tickets = ticketRepository.findAll(spec);
 
-        List<String> headers = Arrays.asList("Nomor Tiket", "Departemen", "Region", "Branch", "Kategori Kebutuhan", "Status", "Target Penyelesaian", "Waktu Proses", "Deskripsi");
+        List<String> headers = Arrays.asList("Nomor Tiket", "Departemen", "Region", "Branch", "Kategori Kebutuhan", "Status", "Target Penyelesaian", "Waktu Proses", "Deskripsi", "Tanggal Terbuat");
 
         List<Map<String, Object>> data = tickets.stream().map(ticket -> {
             Map<String, Object> map = new HashMap<>();
@@ -235,6 +237,7 @@ public class TicketService {
             map.put("Target Penyelesaian", ticket.getTargetCompletion());
             map.put("Waktu Proses", ticket.getProcessAt());
             map.put("Deskripsi", ticket.getDescription());
+            map.put("Tanggal Terbuat", ConvertDate.indonesianFormat(ticket.getCreatedAt()));
             return map;
         }).collect(Collectors.toList());
 

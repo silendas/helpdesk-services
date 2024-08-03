@@ -1,8 +1,12 @@
 package com.cms.helpdesk.tickets.controller;
 
+import java.io.InputStreamReader;
+import java.util.Date;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,6 +38,13 @@ public class TicketController {
             @RequestParam("page") Optional<Integer> page,
             @RequestParam("size") Optional<Integer> size) {
         return service.getTickets(page.orElse(0), size.orElse(10));
+    }
+
+    @GetMapping("/report")
+    public ResponseEntity<InputStreamResource> getReport(
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Optional<Date> start,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Optional<Date> end) {
+        return service.downloadReport(start.orElse(null), end.orElse(null));
     }
 
     @PostMapping("/create")

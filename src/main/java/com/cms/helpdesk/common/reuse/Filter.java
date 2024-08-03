@@ -1,5 +1,7 @@
 package com.cms.helpdesk.common.reuse;
 
+import java.util.Date;
+
 import org.springframework.data.jpa.domain.Specification;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -32,6 +34,19 @@ public class Filter<T> {
         return (root, query, criteriaBuilder) -> {
             if (name != null) {
                 return criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + name.toLowerCase() + "%");
+            }
+            return null;
+        };
+    }
+
+    public Specification<T> createdAtBetween(Date start, Date end) {
+        return (root, query, criteriaBuilder) -> {
+            if (start != null && end != null) {
+                return criteriaBuilder.between(root.get("createdAt"), start, end);
+            } else if (start != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), start);
+            } else if (end != null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), end);
             }
             return null;
         };
