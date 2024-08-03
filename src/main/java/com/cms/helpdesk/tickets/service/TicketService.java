@@ -227,10 +227,10 @@ public class TicketService {
         List<Map<String, Object>> data = tickets.stream().map(ticket -> {
             Map<String, Object> map = new HashMap<>();
             map.put("Nomor Tiket", ticket.getTicketNumber());
-            map.put("Departemen", ticket.getDepartmentId() != null ? ticket.getDepartmentId().getName() : "-");
-            map.put("Region", ticket.getRegionId() != null ? ticket.getRegionId().getName() : "-");
-            map.put("Branch", ticket.getBranchId() != null ? ticket.getBranchId().getName() : "-");
-            map.put("Kategori Kebutuhan", ticket.getConstraintCategoryId() != null ? ticket.getConstraintCategoryId().getName() : "-");
+            map.put("Departemen", ticket.getDepartmentId() != null ? ticket.getDepartmentId().getName() : "");
+            map.put("Region", ticket.getRegionId() != null ? ticket.getRegionId().getName() : "");
+            map.put("Branch", ticket.getBranchId() != null ? ticket.getBranchId().getName() : "");
+            map.put("Kategori Kebutuhan", ticket.getConstraintCategoryId() != null ? ticket.getConstraintCategoryId().getName() : "");
             map.put("Status", ticket.getStatus());
             map.put("Target Penyelesaian", ticket.getTargetCompletion());
             map.put("Waktu Proses", ticket.getProcessAt());
