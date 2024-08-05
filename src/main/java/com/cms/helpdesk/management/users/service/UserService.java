@@ -52,7 +52,7 @@ public class UserService {
     @Autowired
     private EmployeeService employeeService;
 
-    public ResponseEntity<Object> getUsers(String search, boolean approval, boolean pageable, int page, int size) {
+    public ResponseEntity<Object> getUsers(String search, String approval, boolean pageable, int page, int size) {
         Specification<User> spec = Specification
                 .where(new Filter<User>().orderByIdDesc())
                 .and(new Filter<User>().isNotDeleted())

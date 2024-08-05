@@ -11,11 +11,12 @@ import jakarta.persistence.criteria.Predicate;
 
 public class UserFilter {
 
-    public Specification<User> approval(Boolean approval) {
+    public Specification<User> approval(String approval) {
         return (root, query, criteriaBuilder) -> {
-            if (approval.equals(null))
+            if (approval.equals(""))
                 return null;
-            return criteriaBuilder.notEqual(root.get("isApprove"), approval);
+                boolean isApproved = Boolean.parseBoolean(approval);
+                return criteriaBuilder.equal(root.get("isApprove"), isApproved);
         };
     }
 
