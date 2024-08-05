@@ -57,12 +57,12 @@ public class ApplicationConfig {
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
+        return new WebMvcConfigurer() { 
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("*")
-                        .allowedMethods("POST", "GET", "PUT", "PATCH", "DELETE");
+                        .allowedMethods("POST", "GET", "PUT", "PATCH", "DELETE", "OPTIONS");
             }
         };
     }
