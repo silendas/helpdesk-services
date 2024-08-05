@@ -57,7 +57,7 @@ public class AuthenticateService {
                                         Message.FAILED_LOGIN.getMessage(), null, null, detail), 1);
                 }
                 if(user.isDeleted()){
-                        detail.add("Akun anda telah ditidak aktifkan");
+                        detail.add("Akun anda telah dinonaktifkan");
                         return Response.buildResponse(new GlobalDto(Message.FAILED_LOGIN.getStatusCode(), null,
                                         Message.FAILED_LOGIN.getMessage(), null, null, detail), 1);
                 }
