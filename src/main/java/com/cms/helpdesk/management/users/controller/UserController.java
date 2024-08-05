@@ -31,10 +31,12 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<Object> getUsers(
+            @RequestParam("search") Optional<String> search,
+            @RequestParam("approval") Optional<Boolean> approval,
             @RequestParam("pageable") Optional<Boolean> pageable,
             @RequestParam("page") Optional<Integer> page,
             @RequestParam("size") Optional<Integer> size) {
-        return service.getUsers(pageable.orElse(false), page.orElse(0), size.orElse(10));
+        return service.getUsers(search.orElse(null), approval.orElse(null), pageable.orElse(false), page.orElse(0), size.orElse(10));
     }
 
     @PostMapping("/create")

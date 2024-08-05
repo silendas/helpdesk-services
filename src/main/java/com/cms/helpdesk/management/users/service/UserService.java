@@ -24,6 +24,7 @@ import com.cms.helpdesk.management.users.dto.request.ReqEmployeeDTO;
 import com.cms.helpdesk.management.users.dto.request.ReqUserDTO;
 import com.cms.helpdesk.management.users.dto.response.OrganizeRes;
 import com.cms.helpdesk.management.users.dto.response.UserRes;
+import com.cms.helpdesk.management.users.filter.UserFilter;
 import com.cms.helpdesk.management.users.model.Employee;
 import com.cms.helpdesk.management.users.model.User;
 import com.cms.helpdesk.management.users.repository.EmployeeRepository;
@@ -51,10 +52,12 @@ public class UserService {
     @Autowired
     private EmployeeService employeeService;
 
-    public ResponseEntity<Object> getUsers(boolean pageable, int page, int size) {
+    public ResponseEntity<Object> getUsers(String search, boolean approval, boolean pageable, int page, int size) {
         Specification<User> spec = Specification
                 .where(new Filter<User>().orderByIdDesc())
-                .and(new Filter<User>().isNotDeleted());
+                .and(new Filter<User>().isNotDeleted())
+                .and(new UserFilter().approval(approval))
+                .and(new UserFilter().query(search));
         if (pageable) {
             Page<User> res = paginate.findAll(spec, PageRequest.of(page, size));
             return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
