@@ -126,7 +126,7 @@ public class TicketService {
         ticketRes.setStatus(ticket.getStatus());
         ticketRes.setTimeCompletion(ticket.getTimeCompletion());
         ticketRes.setDescriptionCompletion(ticket.getDescriptionCompletion());
-        ticketRes.setProcessBy(ticket.getProcessBy().getName());
+        ticketRes.setProcessBy(ticket.getProcessBy() != null ? ticket.getProcessBy().getName() : null);
         ticketRes.setProcessAt(ticket.getProcessAt());
         ticketRes.setRequesterNip(ticket.getRequesterNip());
         ticketRes.setRequesterEmail(ticket.getRequesterEmail());

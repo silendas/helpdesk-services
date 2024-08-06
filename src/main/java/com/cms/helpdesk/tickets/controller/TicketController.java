@@ -14,6 +14,7 @@ import com.cms.helpdesk.common.path.BasePath;
 import com.cms.helpdesk.tickets.dto.CloseTicketDTO;
 import com.cms.helpdesk.tickets.dto.CreateTicketDTO;
 import com.cms.helpdesk.tickets.dto.ProcessTicketDTO;
+import com.cms.helpdesk.tickets.dto.TicketDispositionDTO;
 import com.cms.helpdesk.tickets.service.TicketService;
 
 import jakarta.validation.Valid;
@@ -56,6 +57,12 @@ public class TicketController {
         return service.createTicket(dto);
     }
 
+    @PatchMapping("/{id}/disposition")
+    public ResponseEntity<Object> disposiitonTicket(@PathVariable("id") Long id,
+            @RequestBody TicketDispositionDTO dto) {
+        return service.dispositionTicket(id, dto);
+    }
+
     @PatchMapping("/{id}/process")
     public ResponseEntity<Object> processTicket(@PathVariable("id") Long id, ProcessTicketDTO dto) {
         return service.processTicket(id, dto);
@@ -65,4 +72,5 @@ public class TicketController {
     public ResponseEntity<Object> closedTicket(@PathVariable("id") Long id, @RequestBody CloseTicketDTO dto) {
         return service.closedTicket(id, dto);
     }
+
 }
