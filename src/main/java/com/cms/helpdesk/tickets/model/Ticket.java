@@ -6,6 +6,7 @@ import com.cms.helpdesk.management.branch.model.Branch;
 import com.cms.helpdesk.management.constraintcategory.model.ConstraintCategory;
 import com.cms.helpdesk.management.departments.model.Department;
 import com.cms.helpdesk.management.regions.model.Region;
+import com.cms.helpdesk.management.users.model.Employee;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -74,8 +75,9 @@ public class Ticket extends BaseEntity {
     @Column(name = "description_completion", columnDefinition = "TEXT", nullable = true)
     private String descriptionCompletion;
 
-    @Column(name = "process_by", nullable = true)
-    private String processBy;
+    @ManyToOne
+    @JoinColumn(name = "process_by", nullable = true)
+    private Employee processBy;
 
     @Column(name = "process_at", nullable = true)
     private Date processAt;

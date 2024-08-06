@@ -46,6 +46,11 @@ public class TicketController {
         return service.downloadReport(start.orElse(null), end.orElse(null));
     }
 
+    @GetMapping("/{id}/detail")
+    public ResponseEntity<Object> findTicket(@PathVariable("id") Long id) {
+        return service.findTicket(id);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<Object> createTicket(@Valid @RequestBody CreateTicketDTO dto) {
         return service.createTicket(dto);

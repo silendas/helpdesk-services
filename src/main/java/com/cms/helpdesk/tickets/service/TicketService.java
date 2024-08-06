@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -43,11 +44,18 @@ import com.cms.helpdesk.management.targetcompletion.repository.TargetCompletionR
 import com.cms.helpdesk.management.users.model.Employee;
 import com.cms.helpdesk.management.users.model.User;
 import com.cms.helpdesk.management.users.repository.EmployeeRepository;
+import com.cms.helpdesk.management.users.service.EmployeeService;
 import com.cms.helpdesk.tickets.dto.CloseTicketDTO;
 import com.cms.helpdesk.tickets.dto.CreateTicketDTO;
 import com.cms.helpdesk.tickets.dto.ProcessTicketDTO;
+import com.cms.helpdesk.tickets.dto.TicketDetailRes;
+import com.cms.helpdesk.tickets.dto.TicketDispositionDTO;
+import com.cms.helpdesk.tickets.dto.TicketDispositionRes;
+import com.cms.helpdesk.tickets.filter.TicketFilter;
 import com.cms.helpdesk.tickets.model.Ticket;
+import com.cms.helpdesk.tickets.model.TicketDisposition;
 import com.cms.helpdesk.tickets.repository.PaginateTicket;
+import com.cms.helpdesk.tickets.repository.TicketDispositionRepository;
 import com.cms.helpdesk.tickets.repository.TicketRepository;
 
 @Service
@@ -58,6 +66,9 @@ public class TicketService {
 
     @Autowired
     private PaginateTicket paginate;
+
+    @Autowired
+    private TicketDispositionRepository dispositionRepository;
 
     @Autowired
     private DepartmentRepository departmentRepository;
@@ -80,6 +91,9 @@ public class TicketService {
     @Autowired
     private ReportExcelUtil reportUtil;
 
+    @Autowired
+    private EmployeeService employeeService;
+
     public ResponseEntity<Object> getTickets(int page, int size) {
         Specification<Ticket> spec = Specification.where(new Filter<Ticket>().isNotDeleted())
                 .and(new Filter<Ticket>().orderByIdDesc());
@@ -88,6 +102,57 @@ public class TicketService {
                 new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                         Message.SUCCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res), res.getContent(), null),
                 1);
+    }
+
+    public ResponseEntity<Object> findTicket(Long id) {
+
+        Ticket ticket = getTicket(id);
+
+        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, buildResTicketDetail(ticket), null), 1);
+
+    }
+
+    public TicketDetailRes buildResTicketDetail(Ticket ticket) {
+        TicketDetailRes ticketRes = new TicketDetailRes();
+        ticketRes.setId(ticket.getId());
+        ticketRes.setTicketNumber(ticket.getTicketNumber());
+        ticketRes.setRegion(ticket.getRegionId());
+        ticketRes.setBranch(ticket.getBranchId());
+        ticketRes.setDepartment(ticket.getDepartmentId());
+        ticketRes.setConstraintCategory(ticket.getConstraintCategoryId());
+        ticketRes.setPriority(ticket.getConstraintCategoryId().getPriority().toString());
+        ticketRes.setDescription(ticket.getDescription());
+        ticketRes.setStatus(ticket.getStatus());
+        ticketRes.setTimeCompletion(ticket.getTimeCompletion());
+        ticketRes.setDescriptionCompletion(ticket.getDescriptionCompletion());
+        ticketRes.setProcessBy(ticket.getProcessBy().getName());
+        ticketRes.setProcessAt(ticket.getProcessAt());
+        ticketRes.setRequesterNip(ticket.getRequesterNip());
+        ticketRes.setRequesterEmail(ticket.getRequesterEmail());
+        ticketRes.setExternal(ticket.isExternal());
+        ticketRes.setCreatedBy(ticket.getCreatedBy());
+        ticketRes.setCreatedAt(ticket.getCreatedAt());
+
+        Specification<TicketDisposition> spec = Specification.where(new TicketFilter().findByTicketId(ticket.getId()));
+        List<TicketDisposition> ticketDisposition = dispositionRepository.findAll(spec);
+
+        List<TicketDispositionRes> dispositionResponses = new ArrayList<>();
+        for (TicketDisposition disposition : ticketDisposition) {
+            TicketDispositionRes dispositionRes = buildTicketDispositionRes(disposition);
+            dispositionResponses.add(dispositionRes);
+        }
+        ticketRes.setDisposition(dispositionResponses);
+
+        return ticketRes;
+    }
+
+    public TicketDispositionRes buildTicketDispositionRes(TicketDisposition ticketDisposition) {
+        TicketDispositionRes ticketDispositionRes = new TicketDispositionRes();
+        ticketDispositionRes.setUserFrom(ticketDisposition.getUserFrom().getName());
+        ticketDispositionRes.setUserTo(ticketDisposition.getUserTo().getName());
+        ticketDispositionRes.setDescription(ticketDisposition.getDescription());
+        return ticketDispositionRes;
     }
 
     public ResponseEntity<Object> createTicket(CreateTicketDTO dto) {
@@ -182,7 +247,7 @@ public class TicketService {
                     break;
             }
 
-            ticket.setProcessBy(getUserData.getEmployee().getNip());
+            ticket.setProcessBy(getUserData.getEmployee());
             ticket.setProcessAt(currentTime);
             ticket.setTargetCompletion(Timestamp.from(targetCompletionTime));
             ticket.setStatus(StatusEnum.PROGRESS);
@@ -201,7 +266,7 @@ public class TicketService {
         Timestamp currentTime = Timestamp.from(Instant.now());
 
         Ticket ticket = getTicket(id);
-        String processBy = ticket.getProcessBy();
+        String processBy = ticket.getProcessBy().getNip();
 
         if (processBy.equals(userNip)) {
             ticket.setTimeCompletion(currentTime);
@@ -216,6 +281,31 @@ public class TicketService {
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, ticketRepository.save(ticket), null), 0);
     }
 
+    public ResponseEntity<Object> dispositionTicket(Long id, TicketDispositionDTO dto) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Ticket ticket = getTicket(id);
+
+        TicketDisposition disposition = new TicketDisposition();
+
+        disposition.setTicket(ticket);
+        disposition.setUserFrom(user.getEmployee());
+        disposition.setUserTo(employeeService.getEmployeeByNip(dto.getUserTo()));
+        disposition.setDescription(dto.getDescription());
+
+        dispositionStatus(ticket);
+
+        return Response.buildResponse(
+                new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                        Message.SUCCESSFULLY_DEFAULT.getMessage(), null, dispositionRepository.save(disposition), null),
+                0);
+    }
+
+    public void dispositionStatus(Ticket ticket) {
+        ticket.setStatus(StatusEnum.DISPOSITION);
+        ticketRepository.save(ticket);
+    }
+
     public ResponseEntity<InputStreamResource> downloadReport(Date start, Date end) {
         Specification<Ticket> spec = Specification
                 .where(new Filter<Ticket>().createdAtBetween(start, end))
@@ -223,7 +313,8 @@ public class TicketService {
                 .and(new Filter<Ticket>().orderByIdAsc());
         List<Ticket> tickets = ticketRepository.findAll(spec);
 
-        List<String> headers = Arrays.asList("Nomor Tiket", "Departemen", "Region", "Branch", "Kategori Kebutuhan", "Status", "Target Penyelesaian", "Waktu Proses", "Deskripsi", "Tanggal Terbuat");
+        List<String> headers = Arrays.asList("Nomor Tiket", "Departemen", "Region", "Branch", "Kategori Kebutuhan",
+                "Status", "Target Penyelesaian", "Waktu Proses", "Deskripsi", "Tanggal Terbuat");
 
         List<Map<String, Object>> data = tickets.stream().map(ticket -> {
             Map<String, Object> map = new HashMap<>();
@@ -231,7 +322,8 @@ public class TicketService {
             map.put("Departemen", ticket.getDepartmentId() != null ? ticket.getDepartmentId().getName() : "");
             map.put("Region", ticket.getRegionId() != null ? ticket.getRegionId().getName() : "");
             map.put("Branch", ticket.getBranchId() != null ? ticket.getBranchId().getName() : "");
-            map.put("Kategori Kebutuhan", ticket.getConstraintCategoryId() != null ? ticket.getConstraintCategoryId().getName() : "");
+            map.put("Kategori Kebutuhan",
+                    ticket.getConstraintCategoryId() != null ? ticket.getConstraintCategoryId().getName() : "");
             map.put("Status", ticket.getStatus());
             map.put("Target Penyelesaian", ticket.getTargetCompletion());
             map.put("Waktu Proses", ticket.getProcessAt());
