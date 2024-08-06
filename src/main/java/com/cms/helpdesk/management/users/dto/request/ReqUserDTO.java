@@ -27,13 +27,10 @@ public class ReqUserDTO {
     @NotBlank(message = "Phone tidak boleh kosong")
     private String phone;
 
-    @NotNull(message = "Departement tidak boleh kosong")
     private Long departmentId = null;
 
-    @NotNull(message = "Region tidak boleh kosong")
     private Long regionId = null;
     
-    @NotNull(message = "Branch tidak boleh kosong")
     private Long branchId = null;
 
 }

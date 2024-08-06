@@ -98,6 +98,9 @@ public class EmployeeService {
         request.setNip(dto.getNip());
         request.setName(dto.getName());
         request.setPhone(dto.getPhone());
+        if(dto.getDepartmentId() == null && dto.getBranchId() == null && dto.getRegionId() == null) {
+            throw new ResourceNotFoundException("Department, Branch dan Region harus dipilih salah satu");
+        }
         request.setBranch(getBranch(dto.getBranchId()));
         request.setDepartment(getDepartment(dto.getDepartmentId()));
         request.setRegion(getRegion(dto.getRegionId()));

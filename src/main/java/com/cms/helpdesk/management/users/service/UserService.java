@@ -141,14 +141,6 @@ public class UserService {
         return res;
     }
 
-    public OrganizeRes buildResOrganize(User user) {
-        OrganizeRes organizeRes = new OrganizeRes();
-        organizeRes.setDepartment(user.getEmployee().getDepartment());
-        organizeRes.setRegion(user.getEmployee().getRegion());
-        organizeRes.setBranch(user.getEmployee().getBranch());
-        return organizeRes;
-    }
-
     private User getUser(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
