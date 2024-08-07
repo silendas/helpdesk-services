@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -104,9 +103,6 @@ public class TicketService {
 
     @Autowired
     private AttachmentRepository attachmentRepository;
-
-    @Autowired
-    private UploadFile uploadFile;
 
     private final String STORAGE_PATH_ATTACHMENT = AttachmentPath.STORAGE_PATH_ATTACHMENT;
 
@@ -242,7 +238,7 @@ public class TicketService {
 
                 String path = STORAGE_PATH_ATTACHMENT + savedTicket.getTicketNumber() + "_" + filename;
 
-                uploadFile.upload(file, path, savedTicket.getTicketNumber() + "_" + filename);
+                UploadFile.upload(file, path, savedTicket.getTicketNumber() + "_" + filename);
 
                 Attachment attachment = new Attachment();
                 attachment.setTicket(savedTicket);

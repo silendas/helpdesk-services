@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class UploadFile {
 
-    public void upload(MultipartFile multipartFile, String path, String name) throws IOException {
+    public static void upload(MultipartFile multipartFile, String path, String name) throws IOException {
         Path directoryPath = Paths.get(path);
 
         if (!Files.exists(directoryPath)) {
