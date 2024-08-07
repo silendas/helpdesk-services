@@ -32,10 +32,10 @@ public class Registration {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "nip", unique = true)
+    @Column(name = "nip")
     private String nip;
 
-    @Column(name = "email", unique = true)
+    @Column(name = "email")
     private String email;
 
     @Column(name = "name")
