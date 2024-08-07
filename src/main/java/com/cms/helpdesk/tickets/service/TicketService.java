@@ -36,6 +36,7 @@ import com.cms.helpdesk.common.response.dto.GlobalDto;
 import com.cms.helpdesk.common.reuse.ConvertDate;
 import com.cms.helpdesk.common.reuse.Filter;
 import com.cms.helpdesk.common.reuse.PageConvert;
+import com.cms.helpdesk.common.reuse.UploadFile;
 import com.cms.helpdesk.common.utils.ReportExcelUtil;
 import com.cms.helpdesk.enums.tickets.StatusEnum;
 import com.cms.helpdesk.management.branch.model.Branch;
@@ -104,6 +105,9 @@ public class TicketService {
     @Autowired
     private AttachmentRepository attachmentRepository;
 
+    @Autowired
+    private UploadFile uploadFile;
+
     private final String STORAGE_PATH_ATTACHMENT = AttachmentPath.STORAGE_PATH_ATTACHMENT;
 
     public ResponseEntity<Object> getTickets(int page, int size) {
@@ -167,7 +171,7 @@ public class TicketService {
         return ticketDispositionRes;
     }
 
-    public ResponseEntity<Object> createTicket(CreateTicketDTO dto) {
+    public ResponseEntity<Object> createTicket(CreateTicketDTO dto) throws IOException {
 
         User getUserData = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -236,25 +240,15 @@ public class TicketService {
                 String filename = StringUtils.cleanPath(file.getOriginalFilename());
                 String filetypeStr = file.getContentType();
 
-                // int filetype = 1;
-                // if (filetypeStr != null && filetypeStr.startsWith("image/")) {
-                // filetype = 0;
-                // }
                 String path = STORAGE_PATH_ATTACHMENT + savedTicket.getTicketNumber() + "_" + filename;
 
-                try {
-                    File destFile = new File(path);
-                    destFile.getParentFile().mkdirs();
-                    file.transferTo(destFile);
+                uploadFile.upload(file, path, savedTicket.getTicketNumber() + "_" + filename);
 
-                    Attachment attachment = new Attachment();
-                    attachment.setTicket(savedTicket);
-                    attachment.setFilename(filename);
-                    attachment.setFileType(filetypeStr);
-                    savedTicket.addAttachment(attachment);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                Attachment attachment = new Attachment();
+                attachment.setTicket(savedTicket);
+                attachment.setFilename(filename);
+                attachment.setFileType(filetypeStr);
+                savedTicket.addAttachment(attachment);
             }
 
             attachmentRepository.saveAll(attachments);
