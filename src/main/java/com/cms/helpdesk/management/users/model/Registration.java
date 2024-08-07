@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Validated
 @Entity
-@Table(name = "Registrations")
+@Table(name = "registrations")
 public class Registration {
 
     @Id
