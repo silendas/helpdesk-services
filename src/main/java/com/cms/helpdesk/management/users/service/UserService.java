@@ -77,7 +77,7 @@ public class UserService {
     public ResponseEntity<Object> createUser(ReqUserDTO dto) {
         Role role = getRole(dto.getRoleId());
 
-        Employee employee = employeeService.buildReqToEmployee(new ReqEmployeeDTO(dto.getNip(), dto.getName(), dto.getPhone(), dto.getDepartmentId(), dto.getRegionId(), dto.getBranchId()));
+        Employee employee = employeeService.buildReqToEmployee(new ReqEmployeeDTO(dto.getNip(), dto.getName(), dto.getPhone(), dto.getDepartmentId(), dto.getRegionId(), dto.getBranchId()), 1L);
         employee.setRegistered(true);
 
         User user = new User();
@@ -94,7 +94,7 @@ public class UserService {
         User user = getUserByNip(nip);
 
         Employee employee = user.getEmployee();
-        Employee reqEmployee = employeeService.buildReqToEmployee(new ReqEmployeeDTO(dto.getNip(), dto.getName(), dto.getPhone(), dto.getDepartmentId(), dto.getRegionId(), dto.getBranchId()), 0L);
+        Employee reqEmployee = employeeService.buildReqToEmployee(new ReqEmployeeDTO(dto.getNip(), dto.getName(), dto.getPhone(), dto.getDepartmentId(), dto.getRegionId(), dto.getBranchId()), 1L);
 
         User reqUser = new User();
         reqUser.setEmployee(employeeRepository.save(new PatchField<Employee>().fusion(employee, reqEmployee)));
