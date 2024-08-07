@@ -1,5 +1,6 @@
 package com.cms.helpdesk.tickets.controller;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
 
@@ -54,7 +55,7 @@ public class TicketController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createTicket(@Valid @ModelAttribute CreateTicketDTO dto) {
+    public ResponseEntity<Object> createTicket(@Valid @ModelAttribute CreateTicketDTO dto) throws IOException {
         return service.createTicket(dto);
     }
 
