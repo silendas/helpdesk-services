@@ -94,7 +94,7 @@ public class UserService {
         User user = getUserByNip(nip);
 
         Employee employee = user.getEmployee();
-        Employee reqEmployee = employeeService.buildReqToEmployee(new ReqEmployeeDTO(dto.getNip(), dto.getName(), dto.getPhone(), dto.getDepartmentId(), dto.getRegionId(), dto.getBranchId()));
+        Employee reqEmployee = employeeService.buildReqToEmployee(new ReqEmployeeDTO(dto.getNip(), dto.getName(), dto.getPhone(), dto.getDepartmentId(), dto.getRegionId(), dto.getBranchId()), 0L);
 
         User reqUser = new User();
         reqUser.setEmployee(employeeRepository.save(new PatchField<Employee>().fusion(employee, reqEmployee)));

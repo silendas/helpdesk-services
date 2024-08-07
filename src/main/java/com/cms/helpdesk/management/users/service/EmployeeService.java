@@ -73,7 +73,7 @@ public class EmployeeService {
     }
 
     public ResponseEntity<Object> saveEmployee(ReqEmployeeDTO dto) {
-        Employee employee = buildReqToEmployee(dto);
+        Employee employee = buildReqToEmployee(dto, 0L);
         employee.setRegistered(false);
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(employee), null), 0);
@@ -81,7 +81,7 @@ public class EmployeeService {
 
     public ResponseEntity<Object> updateEmployee(ReqEmployeeDTO dto, String nip) {
         Employee employee = getEmployee(nip);
-        Employee request = buildReqToEmployee(dto);
+        Employee request = buildReqToEmployee(dto, 0L);
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(new PatchField<Employee>().fusion(employee, request)), null), 0);
     }
@@ -93,12 +93,13 @@ public class EmployeeService {
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(employee), null), 0);
     }
 
-    public Employee buildReqToEmployee(ReqEmployeeDTO dto) {
+    // action == 1 degnan validasi
+    public Employee buildReqToEmployee(ReqEmployeeDTO dto, Long action) {
         Employee request = new Employee();
         request.setNip(dto.getNip());
         request.setName(dto.getName());
         request.setPhone(dto.getPhone());
-        if(dto.getDepartmentId() == null && dto.getBranchId() == null && dto.getRegionId() == null) {
+        if(dto.getDepartmentId() == null && dto.getBranchId() == null && dto.getRegionId() == null && action == 1) {
             throw new ResourceNotFoundException("Department, Branch dan Region harus dipilih salah satu");
         }
         request.setBranch(getBranch(dto.getBranchId()));
