@@ -1,23 +1,24 @@
 package com.cms.helpdesk.common.reuse;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.springframework.web.multipart.MultipartFile;
-
 public class UploadFile {
 
-    public static void upload(MultipartFile multipartFile, String path, String name) throws IOException {
-        Path directoryPath = Paths.get(path);
-
-        if (!Files.exists(directoryPath)) {
-            Files.createDirectories(directoryPath);
+    public static void upload(String fileName, String filePath, MultipartFile file) throws IOException {
+        
+        Path uploadPath = Paths.get(filePath);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
         }
 
-        Path filePath = directoryPath.resolve(name);
+        Path filePathWithName = uploadPath.resolve(fileName);
 
-        multipartFile.transferTo(filePath.toFile());
+        file.transferTo(filePathWithName.toFile());
     }
+
 }

@@ -2,6 +2,7 @@ package com.cms.helpdesk.tickets.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -236,9 +237,9 @@ public class TicketService {
                 String filename = StringUtils.cleanPath(file.getOriginalFilename());
                 String filetypeStr = file.getContentType();
 
-                String path = STORAGE_PATH_ATTACHMENT + savedTicket.getTicketNumber() + "_" + filename;
+                String path = STORAGE_PATH_ATTACHMENT;
 
-                UploadFile.upload(file, path, savedTicket.getTicketNumber() + "_" + filename);
+                UploadFile.upload(savedTicket.getTicketNumber() + "_" + filename, path, file);
 
                 Attachment attachment = new Attachment();
                 attachment.setTicket(savedTicket);
