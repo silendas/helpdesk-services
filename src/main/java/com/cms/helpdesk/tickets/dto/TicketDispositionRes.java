@@ -1,7 +1,5 @@
 package com.cms.helpdesk.tickets.dto;
 
-import com.cms.helpdesk.management.users.model.Employee;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

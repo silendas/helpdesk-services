@@ -1,5 +1,6 @@
 package com.cms.helpdesk.tickets.model;
 
+import com.cms.helpdesk.attachments.model.Attachment;
 import com.cms.helpdesk.common.model.BaseEntity;
 import com.cms.helpdesk.enums.tickets.StatusEnum;
 import com.cms.helpdesk.management.branch.model.Branch;
@@ -8,16 +9,7 @@ import com.cms.helpdesk.management.departments.model.Department;
 import com.cms.helpdesk.management.regions.model.Region;
 import com.cms.helpdesk.management.users.model.Employee;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -25,6 +17,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
 
 @Data
 @Setter
@@ -90,4 +84,12 @@ public class Ticket extends BaseEntity {
 
     @Column(name = "is_external", nullable = true)
     private boolean isExternal;
+
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Attachment> attachments = new ArrayList<>();
+
+    public void addAttachment(Attachment attachment) {
+        attachments.add(attachment);
+        attachment.setTicket(this);
+    }
 }

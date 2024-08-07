@@ -1,4 +1,4 @@
-package com.cms.helpdesk.tickets.dto;
+package com.cms.helpdesk.attachments.dto;
 
 import com.cms.helpdesk.tickets.model.Ticket;
 
@@ -7,14 +7,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class TicketDispositionDTO {
-
+public class AttachmentDTO {
     @NotNull(message = "Ticket ID should not be empty")
     private Ticket ticketId;
 
-    @NotBlank(message = "Description should not be empty")
-    private String description;
+    @NotBlank(message = "Filetype should not be empty")
+    private String filetype;
 
-    @NotNull(message = "User To should not be empty")
-    private String userTo;
+    @NotNull(message = "Filename should not be empty")
+    private String filename;
 }

@@ -6,8 +6,6 @@ import com.cms.helpdesk.management.branch.model.Branch;
 import com.cms.helpdesk.management.constraintcategory.model.ConstraintCategory;
 import com.cms.helpdesk.management.departments.model.Department;
 import com.cms.helpdesk.management.regions.model.Region;
-import com.cms.helpdesk.management.users.dto.response.OrganizeRes;
-import com.cms.helpdesk.management.users.model.Employee;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

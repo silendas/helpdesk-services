@@ -20,6 +20,7 @@ import com.cms.helpdesk.tickets.service.TicketService;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,7 +54,7 @@ public class TicketController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createTicket(@Valid @RequestBody CreateTicketDTO dto) {
+    public ResponseEntity<Object> createTicket(@Valid @ModelAttribute CreateTicketDTO dto) {
         return service.createTicket(dto);
     }
 

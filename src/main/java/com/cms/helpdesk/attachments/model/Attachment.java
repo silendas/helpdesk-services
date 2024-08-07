@@ -1,8 +1,7 @@
-package com.cms.helpdesk.tickets.model;
+package com.cms.helpdesk.attachments.model;
 
 import com.cms.helpdesk.common.model.BaseEntity;
-import com.cms.helpdesk.management.users.model.Employee;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.cms.helpdesk.tickets.model.Ticket;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,27 +23,22 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tickets_disposition")
-public class TicketDisposition extends BaseEntity {
+@Table(name = "attachments")
+public class Attachment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "ticket_id")
     private Ticket ticket;
 
-    @ManyToOne
-    @JoinColumn(name = "user_from")
-    private Employee userFrom;
+    @Column(name = "filetype")
+    private String fileType;
 
-    @ManyToOne
-    @JoinColumn(name = "user_to")
-    private Employee userTo;
+    @Column(name = "filename")
+    private String filename;
 
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
 }

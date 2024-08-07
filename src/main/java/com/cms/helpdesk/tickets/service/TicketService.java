@@ -8,7 +8,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -22,7 +26,10 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.cms.helpdesk.attachments.model.Attachment;
+import com.cms.helpdesk.attachments.repository.AttachmentRepository;
 import com.cms.helpdesk.common.exception.ResourceNotFoundException;
+import com.cms.helpdesk.common.path.AttachmentPath;
 import com.cms.helpdesk.common.response.Message;
 import com.cms.helpdesk.common.response.Response;
 import com.cms.helpdesk.common.response.dto.GlobalDto;
@@ -93,6 +100,11 @@ public class TicketService {
 
     @Autowired
     private EmployeeService employeeService;
+
+    @Autowired
+    private AttachmentRepository attachmentRepository;
+
+    private final String STORAGE_PATH_ATTACHMENT = AttachmentPath.STORAGE_PATH_ATTACHMENT;
 
     public ResponseEntity<Object> getTickets(int page, int size) {
         Specification<Ticket> spec = Specification.where(new Filter<Ticket>().isNotDeleted())
@@ -216,8 +228,41 @@ public class TicketService {
         ticket.setStatus(StatusEnum.OPEN);
         ticket.setExternal(false);
 
+        Ticket savedTicket = ticketRepository.save(ticket);
+
+        if (dto.getAttachments() != null && !dto.getAttachments().isEmpty()) {
+            List<Attachment> attachments = new ArrayList<>();
+            for (MultipartFile file : dto.getAttachments()) {
+                String filename = StringUtils.cleanPath(file.getOriginalFilename());
+                String filetypeStr = file.getContentType();
+
+                // int filetype = 1;
+                // if (filetypeStr != null && filetypeStr.startsWith("image/")) {
+                // filetype = 0;
+                // }
+                String path = STORAGE_PATH_ATTACHMENT + savedTicket.getTicketNumber() + "_" + filename;
+
+                try {
+                    File destFile = new File(path);
+                    destFile.getParentFile().mkdirs();
+                    file.transferTo(destFile);
+
+                    Attachment attachment = new Attachment();
+                    attachment.setTicket(savedTicket);
+                    attachment.setFilename(filename);
+                    attachment.setFileType(filetypeStr);
+                    savedTicket.addAttachment(attachment);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            attachmentRepository.saveAll(attachments);
+
+        }
+
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, ticketRepository.save(ticket), null), 0);
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, savedTicket, null), 0);
     }
 
     public ResponseEntity<Object> processTicket(Long id, ProcessTicketDTO dto) {
