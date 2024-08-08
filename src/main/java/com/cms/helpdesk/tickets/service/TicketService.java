@@ -35,7 +35,7 @@ import com.cms.helpdesk.common.response.dto.GlobalDto;
 import com.cms.helpdesk.common.reuse.ConvertDate;
 import com.cms.helpdesk.common.reuse.Filter;
 import com.cms.helpdesk.common.reuse.PageConvert;
-import com.cms.helpdesk.common.reuse.UploadFile;
+import com.cms.helpdesk.common.utils.FileUtil;
 import com.cms.helpdesk.common.utils.ReportExcelUtil;
 import com.cms.helpdesk.enums.tickets.StatusEnum;
 import com.cms.helpdesk.management.branch.model.Branch;
@@ -97,6 +97,9 @@ public class TicketService {
 
     @Autowired
     private ReportExcelUtil reportUtil;
+
+    @Autowired
+    private FileUtil fileUtil;
 
     @Autowired
     private EmployeeService employeeService;
@@ -170,24 +173,24 @@ public class TicketService {
     public ResponseEntity<Object> createTicket(CreateTicketDTO dto) throws IOException {
 
         User getUserData = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
+    
         String userRole = getUserData.getRole().getName();
         Department userDepartment = getUserData.getEmployee().getDepartment();
         Region userRegion = getUserData.getEmployee().getRegion();
         Branch userBranch = getUserData.getEmployee().getBranch();
-
+    
         // Get the current date in YYYYMMDD format
         LocalDate today = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         String currentDateStr = today.format(formatter);
-
+    
         String datePattern = "#" + currentDateStr + "-%";
-
+    
         // Retrieve the last ticket number created today, limited to the most recent one
         List<String> lastTicketNumbers = ticketRepository.findLastTicketNumberByDate(datePattern);
-
+    
         String lastTicketNumber = lastTicketNumbers.isEmpty() ? null : lastTicketNumbers.get(0);
-
+    
         int nextNum = 1; // Default to 1 if no tickets have been created today
         if (lastTicketNumber != null) {
             String[] parts = lastTicketNumber.split("-");
@@ -200,14 +203,14 @@ public class TicketService {
                 }
             }
         }
-
+    
         // Generate the new ticket number
         String newTicketNumber = "#" + currentDateStr + "-" + nextNum;
-
+    
         Department departmentId;
         Region regionId;
         Branch branchId;
-
+    
         if (userRole.equalsIgnoreCase("USER")) {
             departmentId = userDepartment;
             regionId = userRegion;
@@ -217,7 +220,7 @@ public class TicketService {
             regionId = getRegion(dto.getRegionId());
             branchId = getBranch(dto.getBranchId());
         }
-
+    
         Ticket ticket = new Ticket();
         ticket.setTicketNumber(newTicketNumber);
         ticket.setDescription(dto.getDescription());
@@ -227,32 +230,36 @@ public class TicketService {
         ticket.setBranchId(branchId);
         ticket.setStatus(StatusEnum.OPEN);
         ticket.setExternal(false);
-
+    
         Ticket savedTicket = ticketRepository.save(ticket);
-
+    
         if (dto.getAttachments() != null && !dto.getAttachments().isEmpty()) {
             List<Attachment> attachments = new ArrayList<>();
             for (MultipartFile file : dto.getAttachments()) {
-                String filename = StringUtils.cleanPath(file.getOriginalFilename());
                 String filetypeStr = file.getContentType();
-
+    
                 String path = STORAGE_PATH_ATTACHMENT;
-
-                UploadFile.upload(savedTicket.getTicketNumber() + "_" + filename, path, file);
-
+    
+                String fileName = fileUtil.store(file, path, StringUtils.cleanPath(file.getOriginalFilename()));
+    
                 Attachment attachment = new Attachment();
                 attachment.setTicket(savedTicket);
-                attachment.setFilename(filename);
+                attachment.setFilename(fileName);
                 attachment.setFileType(filetypeStr);
-                savedTicket.addAttachment(attachment);
+                attachments.add(attachment);
             }
-
-            attachmentRepository.saveAll(attachments);
-
+    
+            attachmentRepository.saveAll(attachments); // Save all attachments at once
         }
-
-        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, savedTicket, null), 0);
+    
+        return Response.buildResponse(new GlobalDto(
+                Message.SUCCESSFULLY_DEFAULT.getStatusCode(), 
+                null,
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), 
+                null, 
+                savedTicket, 
+                null), 
+            0);
     }
 
     public ResponseEntity<Object> processTicket(Long id, ProcessTicketDTO dto) {
