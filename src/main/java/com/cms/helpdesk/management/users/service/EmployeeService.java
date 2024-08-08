@@ -64,7 +64,7 @@ public class EmployeeService {
 
     public ResponseEntity<Object> getEmployeeByNIP(String nip) {
         Employee employee = getEmployeeByNip(nip);
-        if(employee.isRegistered()) {
+        if (employee.isRegistered()) {
             return Response.buildResponse(new GlobalDto(302, null,
                     "Karyawan sudah mendaftar sebelumnya", null, null, null), 0);
         }
@@ -73,6 +73,10 @@ public class EmployeeService {
     }
 
     public ResponseEntity<Object> saveEmployee(ReqEmployeeDTO dto) {
+        if (repo.findByNip(dto.getNip()).isPresent()) {
+            return Response.buildResponse(new GlobalDto(302, null,
+                    "Karyawan dengan nip : " + dto.getNip() + " sudah terdaftar", null, null, null), 0);
+        }
         Employee employee = buildReqToEmployee(dto, 0L);
         employee.setRegistered(false);
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
@@ -83,7 +87,8 @@ public class EmployeeService {
         Employee employee = getEmployee(nip);
         Employee request = buildReqToEmployee(dto, 0L);
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(new PatchField<Employee>().fusion(employee, request)), null), 0);
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null,
+                repo.save(new PatchField<Employee>().fusion(employee, request)), null), 0);
     }
 
     public ResponseEntity<Object> deleteEmployee(String nip) {
@@ -99,7 +104,7 @@ public class EmployeeService {
         request.setNip(dto.getNip());
         request.setName(dto.getName());
         request.setPhone(dto.getPhone());
-        if(dto.getDepartmentId() == null && dto.getBranchId() == null && dto.getRegionId() == null && action == 1) {
+        if (dto.getDepartmentId() == null && dto.getBranchId() == null && dto.getRegionId() == null && action == 1) {
             throw new ResourceNotFoundException("Department, Branch dan Region harus dipilih salah satu");
         }
         request.setBranch(getBranch(dto.getBranchId()));
