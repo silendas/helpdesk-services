@@ -33,13 +33,18 @@ public class BranchService {
     @Autowired
     private RegionRepository regionRepository;
 
-    public ResponseEntity<Object> getBranchs(int page, int size) {
+    public ResponseEntity<Object> getBranchs(boolean pageable, int page, int size) {
         Specification<Branch> spec = Specification
                 .where(new Filter<Branch>().isNotDeleted())
                 .and(new Filter<Branch>().orderByIdAsc());
+        if(pageable) {
         Page<Branch> res = paginate.findAll(spec, PageRequest.of(page, size));
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res), res.getContent(), null), 1);
+        } else {
+            return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                    Message.SUCCESSFULLY_DEFAULT.getMessage(), null, branchRepository.findAll(spec), null), 1);
+        }
     }
 
     public ResponseEntity<Object> createBranch(BranchDTO dto) {

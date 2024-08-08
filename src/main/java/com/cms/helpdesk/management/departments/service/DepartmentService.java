@@ -28,13 +28,18 @@ public class DepartmentService {
     @Autowired
     private PaginateDepartment paginate;
 
-    public ResponseEntity<Object> getDepartments(int page, int size) {
+    public ResponseEntity<Object> getDepartments(boolean pageable, int page, int size) {
         Specification<Department> spec = Specification
                 .where(new Filter<Department>().isNotDeleted())
                 .and(new Filter<Department>().orderByIdAsc());
-        Page<Department> res = paginate.findAll(spec, PageRequest.of(page, size));
-        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res), res.getContent(), null), 1);
+        if (pageable) {
+            Page<Department> res = paginate.findAll(spec, PageRequest.of(page, size));
+            return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                    Message.SUCCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res), res.getContent(), null), 1);
+        } else {
+            return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                    Message.SUCCESSFULLY_DEFAULT.getMessage(), null, departmentRepository.findAll(spec), null), 1);
+        }
     }
 
     public ResponseEntity<Object> createDepartment(DepartmentDTO dto) {

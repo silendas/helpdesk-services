@@ -29,9 +29,10 @@ public class DepartmentController {
 
     @GetMapping
     public ResponseEntity<Object> getDepartments(
+            @RequestParam("pageable") Optional<Boolean> pageable,
             @RequestParam("page") Optional<Integer> page,
             @RequestParam("size") Optional<Integer> size) {
-        return service.getDepartments(page.orElse(0), size.orElse(10));
+        return service.getDepartments(pageable.orElse(false), page.orElse(0), size.orElse(10));
     }
 
     @PostMapping("/create")

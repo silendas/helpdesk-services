@@ -28,13 +28,18 @@ public class RegionService {
     @Autowired
     private PaginateRegion paginate;
 
-    public ResponseEntity<Object> getRegions(int page, int size) {
+    public ResponseEntity<Object> getRegions(boolean pageable, int page, int size) {
         Specification<Region> spec = Specification
                 .where(new Filter<Region>().isNotDeleted())
                 .and(new Filter<Region>().orderByIdAsc());
-        Page<Region> res = paginate.findAll(spec, PageRequest.of(page, size));
-        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                Message.SUCCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res), res.getContent(), null), 1);
+        if (pageable) {
+            Page<Region> res = paginate.findAll(spec, PageRequest.of(page, size));
+            return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                    Message.SUCCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res), res.getContent(), null), 1);
+        } else {
+            return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                    Message.SUCCESSFULLY_DEFAULT.getMessage(), null, regionRepository.findAll(spec), null), 1);
+        }
     }
 
     public ResponseEntity<Object> createRegion(RegionDTO dto) {
