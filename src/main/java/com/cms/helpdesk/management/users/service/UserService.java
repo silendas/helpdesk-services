@@ -61,7 +61,8 @@ public class UserService {
         if (pageable) {
             Page<User> res = paginate.findAll(spec, PageRequest.of(page, size));
             return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                    Message.SUCCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res), buildResUsers(res.getContent()),
+                    Message.SUCCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res),
+                    buildResUsers(res.getContent()),
                     null), 1);
         } else {
             return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
@@ -77,7 +78,8 @@ public class UserService {
     public ResponseEntity<Object> createUser(ReqUserDTO dto) {
         Role role = getRole(dto.getRoleId());
 
-        Employee employee = employeeService.buildReqToEmployee(new ReqEmployeeDTO(dto.getNip(), dto.getName(), dto.getPhone(), dto.getDepartmentId(), dto.getRegionId(), dto.getBranchId()), 1L);
+        Employee employee = employeeService.buildReqToEmployee(new ReqEmployeeDTO(dto.getNip(), dto.getName(),
+                dto.getPhone(), dto.getDepartmentId(), dto.getRegionId(), dto.getBranchId()), 1L);
         employee.setRegistered(true);
 
         User user = new User();
@@ -94,15 +96,18 @@ public class UserService {
         User user = getUserByNip(nip);
 
         Employee employee = user.getEmployee();
-        Employee reqEmployee = employeeService.buildReqToEmployee(new ReqEmployeeDTO(dto.getNip(), dto.getName(), dto.getPhone(), dto.getDepartmentId(), dto.getRegionId(), dto.getBranchId()), 1L);
+        Employee reqEmployee = employeeService.buildReqToEmployee(new ReqEmployeeDTO(dto.getNip(), dto.getName(),
+                dto.getPhone(), dto.getDepartmentId(), dto.getRegionId(), dto.getBranchId()), 1L);
 
         User reqUser = new User();
         reqUser.setEmployee(employeeRepository.save(new PatchField<Employee>().fusion(employee, reqEmployee)));
         reqUser.setEmail(dto.getEmail());
-        if(dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
             reqUser.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
-        reqUser.setRole(getRole(dto.getRoleId()));
+        if (dto.getRoleId() != null && dto.getRoleId() > 0) {
+            reqUser.setRole(getRole(dto.getRoleId()));
+        }
         reqUser.setApprove(dto.isApproval());
         userRepository.save(new PatchField<User>().fusion(user, reqUser));
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
@@ -114,7 +119,7 @@ public class UserService {
         user.setDeleted(true);
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, userRepository.save(user), null), 0);
-    } 
+    }
 
     private List<UserRes> buildResUsers(List<User> user) {
         List<UserRes> res = new ArrayList<>();
