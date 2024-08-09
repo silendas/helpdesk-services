@@ -56,7 +56,7 @@ public class AuthenticateService {
                         return Response.buildResponse(new GlobalDto(Message.FAILED_LOGIN.getStatusCode(), null,
                                         Message.FAILED_LOGIN.getMessage(), null, null, detail), 1);
                 }
-                if(user.isActive()){
+                if(!user.isActive()){
                         detail.add("Akun anda sudah tidak aktif");
                         return Response.buildResponse(new GlobalDto(Message.FAILED_LOGIN.getStatusCode(), null,
                                         Message.FAILED_LOGIN.getMessage(), null, null, detail), 1);
