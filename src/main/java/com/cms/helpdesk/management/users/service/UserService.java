@@ -55,7 +55,6 @@ public class UserService {
     public ResponseEntity<Object> getUsers(String search, String approval, boolean pageable, int page, int size) {
         Specification<User> spec = Specification
                 .where(new Filter<User>().orderByIdDesc())
-                .and(new Filter<User>().isNotDeleted())
                 .and(new UserFilter().approval(approval))
                 .and(new UserFilter().query(search));
         if (pageable) {
@@ -88,6 +87,7 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(role);
         user.setApprove(true);
+        user.setActive(true);
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, userRepository.save(user), null), 0);
     }
@@ -109,6 +109,7 @@ public class UserService {
             reqUser.setRole(getRole(dto.getRoleId()));
         }
         reqUser.setApprove(dto.isApproval());
+        reqUser.setActive(dto.isActive());
         userRepository.save(new PatchField<User>().fusion(user, reqUser));
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, null, null), 0);
@@ -135,6 +136,8 @@ public class UserService {
         res.setName(user.getEmployee().getName());
         res.setEmail(user.getEmail());
         res.setIsApprove(user.isApprove());
+        res.setIsDelete(user.isDeleted());
+        res.setIsActive(user.isActive());
         res.setRole(user.getRole());
 
         OrganizeRes organizeRes = new OrganizeRes();

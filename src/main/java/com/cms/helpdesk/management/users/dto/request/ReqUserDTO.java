@@ -20,6 +20,7 @@ public class ReqUserDTO {
     private Long roleId;
 
     private boolean approval;
+    private boolean active;
 
     @NotBlank(message = "Name tidak boleh kosong")
     private String name;

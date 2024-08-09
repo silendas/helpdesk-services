@@ -55,6 +55,8 @@ public class InitialData {
                 user.setPassword(passwordEncoder.encode("@cmssuperadmin"));
                 user.setRole(getRole(1L));
                 user.setApprove(true);
+                user.setActive(true);
+                user.setDeleted(false);
                 userRepository.save(user);
             }
         }

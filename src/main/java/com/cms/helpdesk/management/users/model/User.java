@@ -55,9 +55,11 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "otp")
     private String otp;
 
-    @JsonIgnore
     @Column(name = "is_approve")
     private boolean isApprove;
+
+    @Column(name = "is_approve")
+    private boolean isActive;
 
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = true)

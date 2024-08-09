@@ -22,6 +22,8 @@ public class UserRes {
     private String email;
     private Role role;
     private Boolean isApprove;
+    private Boolean isDelete;
+    private Boolean isActive;
     private OrganizeRes organize;
     
 }
