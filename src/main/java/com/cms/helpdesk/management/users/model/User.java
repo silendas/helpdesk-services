@@ -58,7 +58,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "is_approve")
     private boolean isApprove;
 
-    @Column(name = "is_approve")
+    @Column(name = "is_active")
     private boolean isActive;
 
     @ManyToOne
