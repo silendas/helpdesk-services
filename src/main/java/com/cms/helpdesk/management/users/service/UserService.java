@@ -66,7 +66,7 @@ public class UserService {
                     null), 1);
         } else {
             return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                    Message.SUCCESSFULLY_DEFAULT.getMessage(), null, buildResUsers(userRepository.findAll()), null), 1);
+                    Message.SUCCESSFULLY_DEFAULT.getMessage(), null, buildResUsers(userRepository.findAll(spec)), null), 1);
         }
     }
 
