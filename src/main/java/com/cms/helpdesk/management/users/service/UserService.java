@@ -108,12 +108,17 @@ public class UserService {
         if (dto.getRoleId() != null && dto.getRoleId() > 0) {
             reqUser.setRole(getRole(dto.getRoleId()));
         }
-        reqUser.setApprove(dto.isApproval());
-        reqUser.setActive(dto.isActive());
-        reqUser.setDeleted(dto.isDelete());
+        reqUser.setApprove(dto.getApproval() == null ? user.isApprove() : convertStringToBoolean(dto.getApproval()));
+        reqUser.setActive(dto.getActive() == null ? user.isActive() : convertStringToBoolean(dto.getActive()));
+        reqUser.setDeleted(dto.getDelete() == null ? user.isDeleted() : convertStringToBoolean(dto.getDelete()));
         userRepository.save(new PatchField<User>().fusion(user, reqUser));
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, null, null), 0);
+    }
+
+    public boolean convertStringToBoolean(String str) {
+        boolean bool = Boolean.parseBoolean(str);
+        return bool;
     }
 
     public ResponseEntity<Object> deleteUser(String nip) {
