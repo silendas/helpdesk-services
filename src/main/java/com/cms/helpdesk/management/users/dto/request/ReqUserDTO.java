@@ -21,6 +21,7 @@ public class ReqUserDTO {
 
     private boolean approval;
     private boolean active;
+    private boolean delete;
 
     @NotBlank(message = "Name tidak boleh kosong")
     private String name;
