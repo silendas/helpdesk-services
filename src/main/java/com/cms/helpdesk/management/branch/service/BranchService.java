@@ -50,7 +50,7 @@ public class BranchService {
     public ResponseEntity<Object> createBranch(BranchDTO dto) {
         Branch branch = new Branch();
         branch.setName(dto.getName());
-        branch.setRegionId(getRegion(dto.getRegionId()));
+        branch.setRegion(getRegion(dto.getRegionId()));
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, branchRepository.save(branch), null), 0);
     }
@@ -69,7 +69,7 @@ public class BranchService {
                         .body(new GlobalDto(HttpStatus.BAD_REQUEST.value(), null, "Invalid region ID", null, null,
                                 null));
             }
-            branch.setRegionId(region);
+            branch.setRegion(region);
         }
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, branchRepository.save(branch), null), 0);
