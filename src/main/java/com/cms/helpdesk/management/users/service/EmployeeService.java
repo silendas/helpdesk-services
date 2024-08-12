@@ -98,7 +98,7 @@ public class EmployeeService {
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.save(employee), null), 0);
     }
 
-    // action == 1 degnan validasi
+    // action == 1 dengan validasi, action == 0 tanpa dengan validasi
     public Employee buildReqToEmployee(ReqEmployeeDTO dto, Long action) {
         Employee request = new Employee();
         request.setNip(dto.getNip());

@@ -20,6 +20,8 @@ import com.cms.helpdesk.common.reuse.PageConvert;
 import com.cms.helpdesk.common.reuse.PatchField;
 import com.cms.helpdesk.management.roles.model.Role;
 import com.cms.helpdesk.management.roles.repository.RoleRepository;
+import com.cms.helpdesk.management.users.dto.request.ApprovalDto;
+import com.cms.helpdesk.management.users.dto.request.ProfileUserDto;
 import com.cms.helpdesk.management.users.dto.request.ReqEmployeeDTO;
 import com.cms.helpdesk.management.users.dto.request.ReqUserDTO;
 import com.cms.helpdesk.management.users.dto.response.OrganizeRes;
@@ -108,9 +110,43 @@ public class UserService {
         if (dto.getRoleId() != null && dto.getRoleId() > 0) {
             reqUser.setRole(getRole(dto.getRoleId()));
         }
-        reqUser.setApprove(dto.getApproval() == null ? user.isApprove() : convertStringToBoolean(dto.getApproval()));
-        reqUser.setActive(dto.getActive() == null ? user.isActive() : convertStringToBoolean(dto.getActive()));
-        reqUser.setDeleted(dto.getDelete() == null ? user.isDeleted() : convertStringToBoolean(dto.getDelete()));
+        reqUser.setActive(dto.getActive() != null ? convertStringToBoolean(dto.getActive()) : user.isActive());
+        userRepository.save(new PatchField<User>().fusion(user, reqUser));
+        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, null, null), 0);
+    }
+
+    public ResponseEntity<Object> approvalUser(String nip, ApprovalDto dto) {
+        User user = getUserByNip(nip);
+
+        Employee employee = user.getEmployee();
+        Employee reqEmployee = employeeService.buildReqToEmployee(new ReqEmployeeDTO(null, null,
+                null, dto.getDepartmentId(), dto.getRegionId(), dto.getBranchId()), 1L);
+
+        User reqUser = new User();
+        reqUser.setEmployee(employeeRepository.save(new PatchField<Employee>().fusion(employee, reqEmployee)));
+        if (dto.getRoleId() != null && dto.getRoleId() > 0) {
+            reqUser.setRole(getRole(dto.getRoleId()));
+        }
+        reqUser.setApprove(true);
+        reqUser.setDeleted(false);
+        reqUser.setActive(true);
+        userRepository.save(new PatchField<User>().fusion(user, reqUser));
+        return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
+                Message.SUCCESSFULLY_DEFAULT.getMessage(), null, null, null), 0);
+    }
+
+    public ResponseEntity<Object> profileEditUser(String nip, ProfileUserDto dto) {
+        User user = getUserByNip(nip);
+
+        Employee employee = user.getEmployee();
+        Employee reqEmployee = employeeService.buildReqToEmployee(new ReqEmployeeDTO(null, dto.getName(),
+                dto.getPhone(), null, null, null), 0L);
+
+        User reqUser = new User();
+        reqUser.setEmployee(employeeRepository.save(new PatchField<Employee>().fusion(employee, reqEmployee)));
+        reqUser.setEmail(dto.getEmail());
+        reqUser.setPassword(dto.getPassword() != null ? passwordEncoder.encode(dto.getPassword()) : user.getPassword());
         userRepository.save(new PatchField<User>().fusion(user, reqUser));
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, null, null), 0);

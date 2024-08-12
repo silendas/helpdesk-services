@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cms.helpdesk.common.path.BasePath;
+import com.cms.helpdesk.management.users.dto.request.ApprovalDto;
+import com.cms.helpdesk.management.users.dto.request.ProfileUserDto;
 import com.cms.helpdesk.management.users.dto.request.ReqUserDTO;
 import com.cms.helpdesk.management.users.service.UserService;
 
@@ -47,6 +49,16 @@ public class UserController {
     @PatchMapping("/{nip}/update")
     public ResponseEntity<Object> updateUser(@PathVariable("nip") String nip, @RequestBody ReqUserDTO dto) {
         return service.updateUser(nip, dto);
+    }
+
+    @PatchMapping("/{nip}/approval")
+    public ResponseEntity<Object> approveUser(@PathVariable("nip") String nip, @Valid @RequestBody ApprovalDto dto) {
+        return service.approvalUser(nip, dto);
+    }
+
+    @PatchMapping("/{nip}/profile")
+    public ResponseEntity<Object> profileUser(@PathVariable("nip") String nip, @Valid @RequestBody ProfileUserDto dto) {
+        return service.profileEditUser(nip, dto);
     }
 
     @PreAuthorize("hasRole('SUPERADMIN')")

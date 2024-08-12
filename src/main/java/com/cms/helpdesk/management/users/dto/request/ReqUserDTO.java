@@ -19,15 +19,13 @@ public class ReqUserDTO {
     @NotNull(message = "Role tidak boleh kosong")
     private Long roleId;
 
-    private String approval;
-    private String active;
-    private String delete;
-
     @NotBlank(message = "Name tidak boleh kosong")
     private String name;
 
     @NotBlank(message = "Phone tidak boleh kosong")
     private String phone;
+
+    private String active;
 
     private Long departmentId = null;
 
