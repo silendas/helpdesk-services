@@ -147,6 +147,9 @@ public class UserService {
         reqUser.setEmployee(employeeRepository.save(new PatchField<Employee>().fusion(employee, reqEmployee)));
         reqUser.setEmail(dto.getEmail());
         reqUser.setPassword(dto.getPassword() != null ? passwordEncoder.encode(dto.getPassword()) : user.getPassword());
+        reqUser.setApprove(user.isApprove());
+        reqUser.setActive(user.isActive());
+        reqUser.setDeleted(user.isDeleted());
         userRepository.save(new PatchField<User>().fusion(user, reqUser));
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, null, null), 0);
