@@ -15,6 +15,7 @@ import com.cms.helpdesk.common.response.dto.GlobalDto;
 import com.cms.helpdesk.common.reuse.Filter;
 import com.cms.helpdesk.common.reuse.PageConvert;
 import com.cms.helpdesk.management.branch.dto.request.BranchDTO;
+import com.cms.helpdesk.management.branch.filter.BranchFilter;
 import com.cms.helpdesk.management.branch.model.Branch;
 import com.cms.helpdesk.management.branch.repository.BranchRepository;
 import com.cms.helpdesk.management.branch.repository.PaginateBranch;
@@ -33,9 +34,10 @@ public class BranchService {
     @Autowired
     private RegionRepository regionRepository;
 
-    public ResponseEntity<Object> getBranchs(boolean pageable, int page, int size) {
+    public ResponseEntity<Object> getBranchs(Long regionId, boolean pageable, int page, int size) {
         Specification<Branch> spec = Specification
                 .where(new Filter<Branch>().isNotDeleted())
+                .and(new BranchFilter().byRegionId(regionId))
                 .and(new Filter<Branch>().orderByIdAsc());
         if(pageable) {
         Page<Branch> res = paginate.findAll(spec, PageRequest.of(page, size));

@@ -30,9 +30,10 @@ public class BranchController {
     @GetMapping
     public ResponseEntity<Object> getBranchs(
             @RequestParam("pageable") Optional<Boolean> pageable,
+            @RequestParam("regionId") Optional<Long> regionId,
             @RequestParam("page") Optional<Integer> page,
             @RequestParam("size") Optional<Integer> size) {
-        return service.getBranchs(pageable.orElse(false), page.orElse(0), size.orElse(10));
+        return service.getBranchs(regionId.orElse(null), pageable.orElse(false), page.orElse(0), size.orElse(10));
     }
 
     @PostMapping("/create")
