@@ -15,7 +15,7 @@ public interface BasePath {
 
     String BASE_USERS = BASE_API + "/users";
     String BASE_EMPLOYEE = BASE_API + "/employee";
-    
+
     String BASE_OTP = BASE_API + "/otp";
     String BASE_FORGOT_PASSWORD = "/forgotpwdui";
 
@@ -23,5 +23,5 @@ public interface BasePath {
     String BASE_TARGET_COMPLETION = BASE_API + "/target-completion";
 
     String BASE_TICKETS = BASE_API + "/tickets";
-
+    String BASE_ATTACHMENTS = BASE_API + "/attachment";
 }

@@ -2,6 +2,7 @@ package com.cms.helpdesk.attachments.model;
 
 import com.cms.helpdesk.common.model.BaseEntity;
 import com.cms.helpdesk.tickets.model.Ticket;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,6 +32,7 @@ public class Attachment extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "ticket_id")
     private Ticket ticket;

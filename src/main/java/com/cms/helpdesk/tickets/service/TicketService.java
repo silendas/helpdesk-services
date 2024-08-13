@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.cms.helpdesk.attachments.dto.AttachmentRes;
+import com.cms.helpdesk.attachments.filter.AttachmentFilter;
 import com.cms.helpdesk.attachments.model.Attachment;
 import com.cms.helpdesk.attachments.repository.AttachmentRepository;
 import com.cms.helpdesk.common.exception.ResourceNotFoundException;
@@ -151,13 +153,22 @@ public class TicketService {
 
         Specification<TicketDisposition> spec = Specification.where(new TicketFilter().findByTicketId(ticket.getId()));
         List<TicketDisposition> ticketDisposition = dispositionRepository.findAll(spec);
-
         List<TicketDispositionRes> dispositionResponses = new ArrayList<>();
         for (TicketDisposition disposition : ticketDisposition) {
             TicketDispositionRes dispositionRes = buildTicketDispositionRes(disposition);
             dispositionResponses.add(dispositionRes);
         }
         ticketRes.setDisposition(dispositionResponses);
+
+        Specification<Attachment> specAttachment = Specification
+                .where(new AttachmentFilter().findByTicketId(ticket.getId()));
+        List<Attachment> ticketAttachment = attachmentRepository.findAll(specAttachment);
+        List<AttachmentRes> attachmentResponses = new ArrayList<>();
+        for (Attachment attachment : ticketAttachment) {
+            AttachmentRes attachmentRes = buildAttachmentRes(attachment);
+            attachmentResponses.add(attachmentRes);
+        }
+        ticketRes.setAttachment(attachmentResponses);
 
         return ticketRes;
     }
@@ -170,27 +181,35 @@ public class TicketService {
         return ticketDispositionRes;
     }
 
+    public AttachmentRes buildAttachmentRes(Attachment attachment) {
+        AttachmentRes attachmentRes = new AttachmentRes();
+        attachmentRes.setId(attachment.getId());
+        attachmentRes.setFilename(attachment.getFilename());
+        attachmentRes.setFiletype(attachment.getFileType());
+        return attachmentRes;
+    }
+
     public ResponseEntity<Object> createTicket(CreateTicketDTO dto) throws IOException {
 
         User getUserData = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    
+
         String userRole = getUserData.getRole().getName();
         Department userDepartment = getUserData.getEmployee().getDepartment();
         Region userRegion = getUserData.getEmployee().getRegion();
         Branch userBranch = getUserData.getEmployee().getBranch();
-    
+
         // Get the current date in YYYYMMDD format
         LocalDate today = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         String currentDateStr = today.format(formatter);
-    
+
         String datePattern = "#" + currentDateStr + "-%";
-    
+
         // Retrieve the last ticket number created today, limited to the most recent one
         List<String> lastTicketNumbers = ticketRepository.findLastTicketNumberByDate(datePattern);
-    
+
         String lastTicketNumber = lastTicketNumbers.isEmpty() ? null : lastTicketNumbers.get(0);
-    
+
         int nextNum = 1; // Default to 1 if no tickets have been created today
         if (lastTicketNumber != null) {
             String[] parts = lastTicketNumber.split("-");
@@ -203,14 +222,14 @@ public class TicketService {
                 }
             }
         }
-    
+
         // Generate the new ticket number
         String newTicketNumber = "#" + currentDateStr + "-" + nextNum;
-    
+
         Department departmentId;
         Region regionId;
         Branch branchId;
-    
+
         if (userRole.equalsIgnoreCase("USER")) {
             departmentId = userDepartment;
             regionId = userRegion;
@@ -220,7 +239,7 @@ public class TicketService {
             regionId = getRegion(dto.getRegionId());
             branchId = getBranch(dto.getBranchId());
         }
-    
+
         Ticket ticket = new Ticket();
         ticket.setTicketNumber(newTicketNumber);
         ticket.setDescription(dto.getDescription());
@@ -230,36 +249,41 @@ public class TicketService {
         ticket.setBranchId(branchId);
         ticket.setStatus(StatusEnum.OPEN);
         ticket.setExternal(false);
-    
+
         Ticket savedTicket = ticketRepository.save(ticket);
-    
+
         if (dto.getAttachments() != null && !dto.getAttachments().isEmpty()) {
             List<Attachment> attachments = new ArrayList<>();
+            int fileCounter = 1;
             for (MultipartFile file : dto.getAttachments()) {
                 String filetypeStr = file.getContentType();
-    
+
                 String path = STORAGE_PATH_ATTACHMENT;
-    
-                String fileName = fileUtil.store(file, path, StringUtils.cleanPath(file.getOriginalFilename()));
-    
+
+                String fileName = fileUtil.store(file, path,
+                        fileCounter + "_" + savedTicket.getTicketNumber() + "_"
+                                + StringUtils.cleanPath(file.getOriginalFilename()));
+
                 Attachment attachment = new Attachment();
                 attachment.setTicket(savedTicket);
                 attachment.setFilename(fileName);
                 attachment.setFileType(filetypeStr);
                 attachments.add(attachment);
+
+                fileCounter++;
             }
-    
+
             attachmentRepository.saveAll(attachments); // Save all attachments at once
         }
-    
+
         return Response.buildResponse(new GlobalDto(
-                Message.SUCCESSFULLY_DEFAULT.getStatusCode(), 
+                Message.SUCCESSFULLY_DEFAULT.getStatusCode(),
                 null,
-                Message.SUCCESSFULLY_DEFAULT.getMessage(), 
-                null, 
-                savedTicket, 
-                null), 
-            0);
+                Message.SUCCESSFULLY_DEFAULT.getMessage(),
+                null,
+                savedTicket,
+                null),
+                0);
     }
 
     public ResponseEntity<Object> processTicket(Long id, ProcessTicketDTO dto) {

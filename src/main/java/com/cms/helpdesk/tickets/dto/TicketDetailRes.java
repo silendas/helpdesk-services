@@ -1,5 +1,6 @@
 package com.cms.helpdesk.tickets.dto;
 
+import com.cms.helpdesk.attachments.dto.AttachmentRes;
 import com.cms.helpdesk.enums.targetcompletion.TimeIntervalEnum;
 import com.cms.helpdesk.enums.tickets.StatusEnum;
 import com.cms.helpdesk.management.branch.model.Branch;
@@ -47,6 +48,7 @@ public class TicketDetailRes {
     private Date createdAt;
 
     private List<TicketDispositionRes> disposition;
+    private List<AttachmentRes> attachment;
 
     @Data
     @Builder
