@@ -57,7 +57,7 @@ public class UserController {
     }
 
     @PatchMapping("/{nip}/profile")
-    public ResponseEntity<Object> profileUser(@PathVariable("nip") String nip, @Valid @RequestBody ProfileUserDto dto) {
+    public ResponseEntity<Object> profileUser(@PathVariable("nip") String nip, @RequestBody ProfileUserDto dto) {
         return service.profileEditUser(nip, dto);
     }
 

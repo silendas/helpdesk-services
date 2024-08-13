@@ -33,7 +33,7 @@ public class Branch extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "region_id")
-    private Region regionId;
+    private Region region;
 
     @Column(name = "name")
     private String name;
