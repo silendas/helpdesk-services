@@ -81,6 +81,20 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
         return Response.buildResponse(errorDetails, 1);
     }
 
+    @ExceptionHandler(UserFoundException.class)
+    public final ResponseEntity<Object> handleResourceNotFoundException(UserFoundException ex,
+            WebRequest request) {
+        List<String> details = new ArrayList<>();
+        details.add(ex.getMessage());
+
+        GlobalDto errorDetails = new GlobalDto();
+        errorDetails.setMessage(Message.EXCEPTION_ALREADY_EXIST.getMessage());
+        errorDetails.setStatus(Message.EXCEPTION_ALREADY_EXIST.getStatusCode());
+        errorDetails.setDetails(details);
+
+        return Response.buildResponse(errorDetails, 1);
+    }
+
     @ExceptionHandler(NullPointerException.class)
     public final ResponseEntity<Object> handleNullException(NullPointerException ex, WebRequest request) {
         List<String> details = new ArrayList<>();

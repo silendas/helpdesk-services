@@ -1,15 +1,11 @@
 package com.cms.helpdesk.management.users.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.cms.helpdesk.common.response.Response;
-import com.cms.helpdesk.common.response.dto.GlobalDto;
+import com.cms.helpdesk.common.exception.UserFoundException;
 import com.cms.helpdesk.management.users.dto.request.RegisterDto;
 import com.cms.helpdesk.management.users.dto.request.SendOtpDto;
 import com.cms.helpdesk.management.users.model.Employee;
@@ -29,16 +25,13 @@ public class RegisterService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private OtpService otpService;
 
     public ResponseEntity<Object> register(RegisterDto dto) {
-        List<String> errors = new ArrayList<>();
-        Employee employee = employeeService.getEmployeeByNip(dto.getNip());
-        if (employee.isRegistered()) {
-            errors.add("Karyawan sudah mendaftar sebelumnya");
-            return Response.buildResponse(new GlobalDto(302, null,
-                    "Karyawan telah terdaftar", null, null, errors), 1);
-        }
+        EmployeeWithValidations(dto);
         Registration regis = new Registration();
         regis.setNip(dto.getNip());
         regis.setEmail(dto.getEmail());
@@ -47,6 +40,17 @@ public class RegisterService {
         regis.setPhone(dto.getPhone());
         registrationRepository.save(regis);
         return otpService.sendOtp(new SendOtpDto(dto.getEmail()));
+    }
+
+    public void EmployeeWithValidations(RegisterDto dto){
+        Employee employee = employeeService.getEmployeeByNip(dto.getNip());
+
+        if (employee.isRegistered()) {
+            throw new UserFoundException("Karyawan sudah mendaftar sebelumnya");
+        } else if(userService.getUserByEmail(dto.getEmail()) != null) {
+            throw new UserFoundException("Email sudah terdaftar");
+        }
+
     }
 
 }

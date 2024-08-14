@@ -1,7 +1,5 @@
 package com.cms.helpdesk.management.users.controller;
 
-import org.springframework.web.bind.annotation.RestController;
-
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.cms.helpdesk.common.path.BasePath;
 import com.cms.helpdesk.management.users.dto.request.ApprovalDto;
@@ -35,10 +34,12 @@ public class UserController {
     public ResponseEntity<Object> getUsers(
             @RequestParam("search") Optional<String> search,
             @RequestParam("approval") Optional<String> approval,
+            @RequestParam("departementId") Optional<Long> departementId,
+            @RequestParam("roleId") Optional<Long> roleId,
             @RequestParam("pageable") Optional<Boolean> pageable,
             @RequestParam("page") Optional<Integer> page,
             @RequestParam("size") Optional<Integer> size) {
-        return service.getUsers(search.orElse(null), approval.orElse(""), pageable.orElse(false), page.orElse(0), size.orElse(10));
+        return service.getUsers(departementId.orElse(null), roleId.orElse(null), search.orElse(null), approval.orElse(""), pageable.orElse(false), page.orElse(0), size.orElse(10));
     }
 
     @PostMapping("/create")

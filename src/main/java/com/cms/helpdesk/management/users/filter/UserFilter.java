@@ -22,6 +22,22 @@ public class UserFilter {
         };
     }
 
+    public Specification<User> role(Long roleId) {
+        return (root, query, criteriaBuilder) -> {
+            if (roleId == null || roleId == 0)
+                return null;
+            return criteriaBuilder.equal(root.get("role").get("id"), roleId);
+        };
+    }
+
+    public Specification<User> departement(Long departementId) {
+        return (root, query, criteriaBuilder) -> {
+            if (departementId == null || departementId == 0)
+                return null;
+            return criteriaBuilder.equal(root.get("employee").get("department").get("id"), departementId);
+        };
+    }
+
     public Specification<User> query(String search) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();

@@ -26,6 +26,7 @@ public class ReqUserDTO {
     private String phone;
 
     private String active;
+    private String deleted;
 
     private Long departmentId = null;
 
