@@ -205,8 +205,8 @@ public class UserService {
         return userRepository.findByNip(nip).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public User getUserByEmails(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
 
     private Role getRole(Long id) {

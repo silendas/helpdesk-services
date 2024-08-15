@@ -47,7 +47,7 @@ public class RegisterService {
 
         if (employee.isRegistered()) {
             throw new UserFoundException("Karyawan sudah mendaftar sebelumnya");
-        } else if(userService.getUserByEmail(dto.getEmail()) != null) {
+        } else if(userService.getUserByEmails(dto.getEmail()) != null) {
             throw new UserFoundException("Email sudah terdaftar");
         }
 
