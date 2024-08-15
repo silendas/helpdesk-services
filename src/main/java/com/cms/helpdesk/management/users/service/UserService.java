@@ -113,7 +113,7 @@ public class UserService {
             reqUser.setRole(getRole(dto.getRoleId()));
         }
         reqUser.setActive(dto.getActive() != null ? convertStringToBoolean(dto.getActive()) : user.isActive());
-        reqUser.setApprove(dto.getDeleted() != null ? convertStringToBoolean(dto.getDeleted()) : user.isDeleted());
+        reqUser.setDeleted(dto.getDeleted() != null ? convertStringToBoolean(dto.getDeleted()) : user.isDeleted());
         userRepository.save(new PatchField<User>().fusion(user, reqUser));
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, null, null), 0);
