@@ -18,4 +18,5 @@ public class AttachmentRes {
     private Long id;
     private String filename;
     private String filetype;
+    private String fileurl;
 }

@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -31,6 +32,7 @@ import com.cms.helpdesk.attachments.model.Attachment;
 import com.cms.helpdesk.attachments.repository.AttachmentRepository;
 import com.cms.helpdesk.common.exception.ResourceNotFoundException;
 import com.cms.helpdesk.common.path.AttachmentPath;
+import com.cms.helpdesk.common.path.BasePath;
 import com.cms.helpdesk.common.response.Message;
 import com.cms.helpdesk.common.response.Response;
 import com.cms.helpdesk.common.response.dto.GlobalDto;
@@ -238,6 +240,12 @@ public class TicketService {
         attachmentRes.setId(attachment.getId());
         attachmentRes.setFilename(attachment.getFilename());
         attachmentRes.setFiletype(attachment.getFileType());
+        String fileUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path(BasePath.BASE_ATTACHMENTS)
+                .path("/view/")
+                .path(attachment.getFilename())
+                .toUriString();
+        attachmentRes.setFileurl(fileUrl);
         return attachmentRes;
     }
 
