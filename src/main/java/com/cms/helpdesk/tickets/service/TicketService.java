@@ -39,6 +39,7 @@ import com.cms.helpdesk.common.reuse.Filter;
 import com.cms.helpdesk.common.reuse.PageConvert;
 import com.cms.helpdesk.common.utils.FileUtil;
 import com.cms.helpdesk.common.utils.ReportExcelUtil;
+import com.cms.helpdesk.enums.PriorityEnum;
 import com.cms.helpdesk.enums.tickets.StatusEnum;
 import com.cms.helpdesk.management.branch.model.Branch;
 import com.cms.helpdesk.management.branch.repository.BranchRepository;
@@ -56,10 +57,12 @@ import com.cms.helpdesk.management.users.repository.EmployeeRepository;
 import com.cms.helpdesk.management.users.service.EmployeeService;
 import com.cms.helpdesk.tickets.dto.CloseTicketDTO;
 import com.cms.helpdesk.tickets.dto.CreateTicketDTO;
+import com.cms.helpdesk.tickets.dto.OfficeRes;
 import com.cms.helpdesk.tickets.dto.ProcessTicketDTO;
 import com.cms.helpdesk.tickets.dto.TicketDetailRes;
 import com.cms.helpdesk.tickets.dto.TicketDispositionDTO;
 import com.cms.helpdesk.tickets.dto.TicketDispositionRes;
+import com.cms.helpdesk.tickets.dto.TicketListRes;
 import com.cms.helpdesk.tickets.filter.TicketFilter;
 import com.cms.helpdesk.tickets.model.Ticket;
 import com.cms.helpdesk.tickets.model.TicketDisposition;
@@ -112,13 +115,62 @@ public class TicketService {
     private final String STORAGE_PATH_ATTACHMENT = AttachmentPath.STORAGE_PATH_ATTACHMENT;
 
     public ResponseEntity<Object> getTickets(int page, int size) {
-        Specification<Ticket> spec = Specification.where(new Filter<Ticket>().isNotDeleted())
+        User getUserData = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userRole = getUserData.getRole().getName();
+        Specification<Ticket> spec = Specification
+                .where(new Filter<Ticket>().isNotDeleted())
                 .and(new Filter<Ticket>().orderByIdDesc());
+
+        if ("USER".equalsIgnoreCase(userRole)) {
+            spec = spec.and(new TicketFilter().findByCreatedBy(getUserData.getUsername()));
+        } else if ("SUPERVISOR".equalsIgnoreCase(userRole)) {
+            spec = spec.and(
+                    new TicketFilter().findByPriorityAndRegionAndBranch(PriorityEnum.LOW,
+                            getUserData.getEmployee().getRegion(),
+                            getUserData.getEmployee().getBranch()));
+        } else if ("HELPDESK".equalsIgnoreCase(userRole)) {
+            spec = spec.and(new TicketFilter().findByPriorityAndDepartment(PriorityEnum.LOW, PriorityEnum.MEDIUM,
+                    PriorityEnum.HIGH,
+                    getUserData.getEmployee().getDepartment()));
+        }
+
         Page<Ticket> res = paginate.findAll(spec, PageRequest.of(page, size));
+
         return Response.buildResponse(
                 new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                        Message.SUCCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res), res.getContent(), null),
+                        Message.SUCCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res),
+                        buildResListTicket(res.getContent()),
+                        null),
                 1);
+    }
+
+    private List<TicketListRes> buildResListTicket(List<Ticket> ticket) {
+        List<TicketListRes> res = new ArrayList<>();
+        for (Ticket t : ticket) {
+            res.add(buildResListTicket(t));
+        }
+        return res;
+    }
+
+    public TicketListRes buildResListTicket(Ticket ticket) {
+        TicketListRes resList = new TicketListRes();
+        resList.setId(ticket.getId());
+        resList.setTicketNumber(ticket.getTicketNumber());
+        resList.setCreatedAt(ticket.getCreatedAt());
+        resList.setCreatedBy(ticket.getCreatedBy());
+        resList.setStatus(ticket.getStatus());
+        resList.setPriority(
+                ticket.getConstraintCategoryId() != null ? ticket.getConstraintCategoryId().getPriority().toString()
+                        : "");
+        resList.setExternal(ticket.isExternal());
+
+        OfficeRes officeRes = new OfficeRes();
+        officeRes.setDepartment(ticket.getDepartmentId());
+        officeRes.setRegion(ticket.getRegionId());
+        officeRes.setBranch(ticket.getBranchId());
+        resList.setOffice(officeRes);
+
+        return resList;
     }
 
     public ResponseEntity<Object> findTicket(Long id) {
