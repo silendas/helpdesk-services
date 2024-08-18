@@ -20,6 +20,7 @@ public class UserRes {
     private String nip;
     private String name;
     private String email;
+    private String phone;
     private Role role;
     private Boolean isApprove;
     private Boolean isDelete;
