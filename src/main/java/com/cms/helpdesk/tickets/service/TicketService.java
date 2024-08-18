@@ -127,13 +127,17 @@ public class TicketService {
             spec = spec.and(new TicketFilter().findByCreatedBy(getUserData.getUsername()));
         } else if ("SUPERVISOR".equalsIgnoreCase(userRole)) {
             spec = spec.and(
-                    new TicketFilter().findByPriorityAndRegionAndBranch(PriorityEnum.LOW,
+                    new TicketFilter().findTicketSupervisor(
+                            Arrays.asList(PriorityEnum.LOW, PriorityEnum.MEDIUM),
                             getUserData.getEmployee().getRegion(),
-                            getUserData.getEmployee().getBranch()));
+                            getUserData.getEmployee().getBranch(),
+                            getUserData.getUsername()));
         } else if ("HELPDESK".equalsIgnoreCase(userRole)) {
-            spec = spec.and(new TicketFilter().findByPriorityAndDepartment(PriorityEnum.LOW, PriorityEnum.MEDIUM,
-                    PriorityEnum.HIGH,
-                    getUserData.getEmployee().getDepartment()));
+            spec = spec.and(
+                    new TicketFilter().findTicketHelpdesk(
+                            PriorityEnum.HIGH,
+                            getUserData.getEmployee().getDepartment(),
+                            getUserData.getUsername()));
         }
 
         Page<Ticket> res = paginate.findAll(spec, PageRequest.of(page, size));
@@ -144,6 +148,22 @@ public class TicketService {
                         buildResListTicket(res.getContent()),
                         null),
                 1);
+
+        // if ("USER".equalsIgnoreCase(userRole)) {
+        // spec = spec.and(new
+        // TicketFilter().findByCreatedBy(getUserData.getUsername()));
+        // } else if ("SUPERVISOR".equalsIgnoreCase(userRole)) {
+        // spec = spec.and(
+        // new TicketFilter().findByPriorityAndRegionAndBranch(PriorityEnum.LOW,
+        // getUserData.getEmployee().getRegion(),
+        // getUserData.getEmployee().getBranch()));
+        // } else if ("HELPDESK".equalsIgnoreCase(userRole)) {
+        // spec = spec.and(new
+        // TicketFilter().findByPriorityAndDepartment(PriorityEnum.LOW,
+        // PriorityEnum.MEDIUM,
+        // PriorityEnum.HIGH,
+        // getUserData.getEmployee().getDepartment()));
+        // }
     }
 
     private List<TicketListRes> buildResListTicket(List<Ticket> ticket) {
