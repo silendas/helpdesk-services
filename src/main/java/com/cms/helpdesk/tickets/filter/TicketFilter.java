@@ -33,123 +33,6 @@ public class TicketFilter {
         };
     }
 
-    public Specification<Ticket> findByPriorityAndRegionAndBranch(PriorityEnum priority, Region regionId,
-            Branch branchId) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                criteriaBuilder.equal(root.get("priority"), priority),
-                criteriaBuilder.equal(root.get("regionId"), regionId),
-                criteriaBuilder.equal(root.get("branchId"), branchId));
-    }
-
-    public Specification<Ticket> findByPriorityAndDepartment(PriorityEnum priority1, PriorityEnum priority2,
-            PriorityEnum priority3,
-            Department departmentId) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                root.get("constraintCategoryId").get("priority").in(priority1, priority2, priority3),
-                criteriaBuilder.equal(root.get("constraintCategoryId").get("departmentId"), departmentId));
-    }
-
-    // public Specification<Ticket> findTicketSupervisor(List<PriorityEnum>
-    // priorities, Region regionId, Branch branchId,
-    // String nip) {
-    // return (root, query, criteriaBuilder) -> {
-    // // Subquery to fetch tickets with matching user_to
-    // Subquery<Long> subquery = query.subquery(Long.class);
-    // Root<TicketDisposition> subRoot = subquery.from(TicketDisposition.class);
-    // subquery.select(subRoot.get("ticket").get("id"));
-    // subquery.where(
-    // criteriaBuilder.equal(subRoot.get("userTo").get("nip"), nip));
-
-    // return criteriaBuilder.or(
-    // root.get("constraintCategoryId").get("priority").in(priorities),
-    // criteriaBuilder.and(
-    // criteriaBuilder.equal(root.get("regionId"), regionId),
-    // criteriaBuilder.equal(root.get("branchId"), branchId),
-    // criteriaBuilder.in(root.get("id")).value(subquery)));
-    // };
-    // }
-
-    // public Specification<Ticket> findTicketSupervisor(List<PriorityEnum>
-    // priorities, Region region, Branch branch,
-    // String nip) {
-    // return (root, query, criteriaBuilder) -> {
-    // // Predicate for tickets with priority LOW or MEDIUM
-    // Predicate priorityPredicate =
-    // root.get("constraintCategoryId").get("priority").in(priorities);
-
-    // // Conditional predicates for region and branch
-    // Predicate branchPredicate = criteriaBuilder.conjunction(); // default to true
-    // if (branch != null) {
-    // branchPredicate = criteriaBuilder.equal(root.get("branchId"), branch);
-    // }
-
-    // Predicate regionPredicate = criteriaBuilder.conjunction(); // default to true
-    // if (region != null) {
-    // regionPredicate = criteriaBuilder.equal(root.get("regionId"), region);
-    // }
-
-    // // Subquery to find tickets disposed to the supervisor (user_to)
-    // Predicate userToPredicate = criteriaBuilder.conjunction(); // default to true
-    // if (nip != null) {
-    // Subquery<Long> subquery = query.subquery(Long.class);
-    // Root<TicketDisposition> subRoot = subquery.from(TicketDisposition.class);
-    // subquery.select(subRoot.get("ticket").get("id"));
-    // subquery.where(criteriaBuilder.equal(subRoot.get("userTo").get("nip"), nip));
-    // userToPredicate = criteriaBuilder.in(root.get("id")).value(subquery);
-    // }
-
-    // // Combine all predicates
-    // return criteriaBuilder.and(
-    // priorityPredicate,
-    // criteriaBuilder.or(branchPredicate, regionPredicate, userToPredicate));
-    // };
-    // }
-
-    // Bisa nih
-    // public Specification<Ticket> findTicketSupervisor(List<PriorityEnum>
-    // priorities, Region region, Branch branch,
-    // String nip) {
-    // return (root, query, criteriaBuilder) -> {
-    // Subquery<Long> subquery = query.subquery(Long.class);
-    // Root<TicketDisposition> subRoot = subquery.from(TicketDisposition.class);
-    // subquery.select(subRoot.get("ticket").get("id"));
-    // subquery.where(criteriaBuilder.equal(subRoot.get("userTo").get("nip"), nip));
-
-    // Predicate priorityPredicate =
-    // root.get("constraintCategoryId").get("priority").in(priorities);
-
-    // Predicate branchPredicate = criteriaBuilder.equal(root.get("branchId"),
-    // branch);
-    // Predicate regionPredicate = criteriaBuilder.equal(root.get("regionId"),
-    // region);
-
-    // return criteriaBuilder.and(
-    // priorityPredicate,
-    // criteriaBuilder.or(branchPredicate, regionPredicate,
-    // criteriaBuilder.in(root.get("id")).value(subquery)));
-    // };
-    // }
-
-    // public Specification<Ticket> findTicketHelpdesk(PriorityEnum priority,
-    // Department departmentId, String nip) {
-    // return (root, query, criteriaBuilder) -> {
-    // Subquery<Long> subquery = query.subquery(Long.class);
-    // Root<TicketDisposition> subRoot = subquery.from(TicketDisposition.class);
-    // subquery.select(subRoot.get("ticket").get("id"));
-    // subquery.where(
-    // criteriaBuilder.equal(subRoot.get("userTo").get("nip"), nip));
-
-    // return criteriaBuilder.and(
-    // criteriaBuilder.equal(root.get("constraintCategoryId").get("priority"),
-    // priority),
-    // criteriaBuilder.equal(root.get("departmentId"), departmentId),
-    // criteriaBuilder.or(
-    // criteriaBuilder.equal(root.get("constraintCategoryId").get("departmentId"),
-    // departmentId),
-    // criteriaBuilder.in(root.get("id")).value(subquery)));
-    // };
-    // }
-
     public Specification<Ticket> findTicketHelpdesk(PriorityEnum priority, Department departmentId, String nip) {
         return (root, query, criteriaBuilder) -> {
             Subquery<Long> subquery = query.subquery(Long.class);
@@ -188,11 +71,6 @@ public class TicketFilter {
 
             Predicate createdByPredicate = criteriaBuilder.equal(root.get("createdBy"), nip);
 
-            System.out.println("Supervisor NIP: " + nip);
-            System.out.println("Priorities: " + priorities);
-            System.out.println("Region: " + (region != null ? region.getId() : "null"));
-            System.out.println("Branch: " + (branch != null ? branch.getId() : "null"));
-
             return criteriaBuilder.or(
                     criteriaBuilder.and(priorityPredicate, criteriaBuilder.or(branchPredicate, regionPredicate)),
                     criteriaBuilder.in(root.get("id")).value(subquery), createdByPredicate);
@@ -217,21 +95,5 @@ public class TicketFilter {
      * 2. atau ticketDisposition->userTo == user->nip maka ticket muncul note:(tidak
      * mandang priority)
      */
-
-    // public Specification<Ticket> findByDispositionUser(Long userId) {
-    // return (root, query, criteriaBuilder) -> {
-    // if (userId == null) {
-    // return null;
-    // }
-    // // Join dengan tabel Tickets Disposition dan filter berdasarkan user_to
-    // return criteriaBuilder.exists(
-    // query.subquery(Long.class)
-    // .from(TicketDisposition.class)
-    // .select(criteriaBuilder.literal(1L))
-    // .where(
-    // criteriaBuilder.equal(root.get("id"), root.get("ticket_id")),
-    // criteriaBuilder.equal(root.get("user_to"), userId)));
-    // };
-    // }
 
 }
