@@ -188,9 +188,14 @@ public class TicketFilter {
 
             Predicate createdByPredicate = criteriaBuilder.equal(root.get("createdBy"), nip);
 
+            System.out.println("Supervisor NIP: " + nip);
+            System.out.println("Priorities: " + priorities);
+            System.out.println("Region: " + (region != null ? region.getId() : "null"));
+            System.out.println("Branch: " + (branch != null ? branch.getId() : "null"));
+
             return criteriaBuilder.or(
                     criteriaBuilder.and(priorityPredicate, criteriaBuilder.or(branchPredicate, regionPredicate)),
-                    criteriaBuilder.in(root.get("id")).value(subquery));
+                    criteriaBuilder.in(root.get("id")).value(subquery), createdByPredicate);
         };
     }
 
