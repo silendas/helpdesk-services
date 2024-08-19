@@ -35,6 +35,8 @@ public class SecurityConfiguration {
                                                 .permitAll()
                                                 .requestMatchers("/api/otp/**")
                                                 .permitAll()
+                                                .requestMatchers("/api/attachment/**")
+                                                .permitAll()
                                                 .requestMatchers("/api/users/forgotpwd")
                                                 .permitAll()
                                                 .requestMatchers("/api/employee/validate")

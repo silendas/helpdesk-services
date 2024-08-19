@@ -215,6 +215,7 @@ public class TicketService {
         ticketRes.setPriority(ticket.getConstraintCategoryId().getPriority().toString());
         ticketRes.setDescription(ticket.getDescription());
         ticketRes.setStatus(ticket.getStatus());
+        ticketRes.setTargetCompletion(ticket.getTargetCompletion());
         ticketRes.setTimeCompletion(ticket.getTimeCompletion());
         ticketRes.setDescriptionCompletion(ticket.getDescriptionCompletion());
         ticketRes.setProcessBy(ticket.getProcessBy() != null ? ticket.getProcessBy().getName() : null);
@@ -397,7 +398,7 @@ public class TicketService {
             ticket.setProcessAt(currentTime);
             ticket.setTargetCompletion(Timestamp.from(targetCompletionTime));
             ticket.setStatus(StatusEnum.PROGRESS);
-            System.out.println(Timestamp.from(targetCompletionTime));
+            System.out.println("targetCompletion : " + Timestamp.from(targetCompletionTime));
             return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                     Message.SUCCESSFULLY_DEFAULT.getMessage(), null, ticketRepository.save(ticket), null), 0);
         } else {
