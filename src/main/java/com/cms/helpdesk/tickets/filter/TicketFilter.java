@@ -190,7 +190,7 @@ public class TicketFilter {
 
             return criteriaBuilder.or(
                     criteriaBuilder.and(priorityPredicate, criteriaBuilder.or(branchPredicate, regionPredicate)),
-                    criteriaBuilder.in(root.get("id")).value(subquery), createdByPredicate);
+                    criteriaBuilder.in(root.get("id")).value(subquery));
         };
     }
 
