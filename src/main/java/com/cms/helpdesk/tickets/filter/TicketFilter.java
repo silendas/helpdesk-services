@@ -165,10 +165,12 @@ public class TicketFilter {
                     criteriaBuilder.equal(root.get("constraintCategoryId").get("departmentId"), departmentId),
                     criteriaBuilder.equal(root.get("constraintCategoryId").get("priority"), priority));
 
+            Predicate createdByPredicate = criteriaBuilder.equal(root.get("createdBy"), nip);
+
             return criteriaBuilder.or(
                     departmentPriorityPredicate,
                     constraintDepartmentPriorityPredicate,
-                    criteriaBuilder.in(root.get("id")).value(subquery));
+                    criteriaBuilder.in(root.get("id")).value(subquery), createdByPredicate);
         };
     }
 
@@ -184,9 +186,11 @@ public class TicketFilter {
             Predicate branchPredicate = criteriaBuilder.equal(root.get("branchId").get("region"), region);
             Predicate regionPredicate = criteriaBuilder.equal(root.get("regionId"), region);
 
+            Predicate createdByPredicate = criteriaBuilder.equal(root.get("createdBy"), nip);
+
             return criteriaBuilder.or(
                     criteriaBuilder.and(priorityPredicate, criteriaBuilder.or(branchPredicate, regionPredicate)),
-                    criteriaBuilder.in(root.get("id")).value(subquery));
+                    criteriaBuilder.in(root.get("id")).value(subquery), createdByPredicate);
         };
     }
 
