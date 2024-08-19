@@ -53,7 +53,7 @@ public class EmployeeService {
                     Message.SUCCESSFULLY_DEFAULT.getMessage(), PageConvert.convert(res), res.getContent(), null), 1);
         } else {
             return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                    Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.findAll(), null), 1);
+                    Message.SUCCESSFULLY_DEFAULT.getMessage(), null, repo.findAll(spec), null), 1);
         }
     }
 

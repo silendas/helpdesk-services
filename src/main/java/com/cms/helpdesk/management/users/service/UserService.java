@@ -183,6 +183,7 @@ public class UserService {
         res.setNip(user.getEmployee().getNip());
         res.setName(user.getEmployee().getName());
         res.setEmail(user.getEmail());
+        res.setPhone(user.getEmployee().getPhone());
         res.setIsApprove(user.isApprove());
         res.setIsDelete(user.isDeleted());
         res.setIsActive(user.isActive());
