@@ -468,6 +468,7 @@ public class TicketService {
     }
 
     public static String makeTimeCompletion(Date firstDate, Date secondDate) {
+        if(firstDate == null || secondDate == null) return null;
         long diffInMillies = Math.abs(firstDate.getTime() - secondDate.getTime());
 
         long hours = TimeUnit.MILLISECONDS.toHours(diffInMillies);
