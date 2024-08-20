@@ -15,6 +15,7 @@ import com.cms.helpdesk.common.reuse.Filter;
 import com.cms.helpdesk.common.reuse.PageConvert;
 
 import com.cms.helpdesk.management.regions.dto.request.RegionDTO;
+import com.cms.helpdesk.management.regions.filter.RegionFilter;
 import com.cms.helpdesk.management.regions.model.Region;
 import com.cms.helpdesk.management.regions.repository.PaginateRegion;
 import com.cms.helpdesk.management.regions.repository.RegionRepository;
@@ -28,9 +29,10 @@ public class RegionService {
     @Autowired
     private PaginateRegion paginate;
 
-    public ResponseEntity<Object> getRegions(boolean pageable, int page, int size) {
+    public ResponseEntity<Object> getRegions(Long regionId, boolean pageable, int page, int size) {
         Specification<Region> spec = Specification
                 .where(new Filter<Region>().isNotDeleted())
+                .and(new RegionFilter().byRegionId(regionId))
                 .and(new Filter<Region>().orderByIdAsc());
         if (pageable) {
             Page<Region> res = paginate.findAll(spec, PageRequest.of(page, size));

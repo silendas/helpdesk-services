@@ -382,7 +382,6 @@ public class TicketService {
             ticket.setProcessAt(currentTime);
             ticket.setTargetCompletion(Timestamp.from(targetCompletionTime));
             ticket.setStatus(StatusEnum.PROGRESS);
-            System.out.println("targetCompletion : " + Timestamp.from(targetCompletionTime));
             return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                     Message.SUCCESSFULLY_DEFAULT.getMessage(), null, ticketRepository.save(ticket), null), 0);
         } else {
