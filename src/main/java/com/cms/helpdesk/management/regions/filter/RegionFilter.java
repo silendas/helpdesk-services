@@ -10,7 +10,7 @@ public class RegionFilter {
         return (root, query, criteriaBuilder) -> {
             if (regionId == null)
                 return null;
-            return criteriaBuilder.equal(root.get("region").get("id"), regionId);
+            return criteriaBuilder.equal(root.get("id"), regionId);
         };
     }
 }

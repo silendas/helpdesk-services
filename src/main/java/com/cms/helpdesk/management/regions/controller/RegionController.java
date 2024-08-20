@@ -31,9 +31,10 @@ public class RegionController {
     @GetMapping
     public ResponseEntity<Object> getRegions(
             @RequestParam("pageable") Optional<Boolean> pageable,
+            @RequestParam("regionId") Optional<Long> regionId,
             @RequestParam("page") Optional<Integer> page,
             @RequestParam("size") Optional<Integer> size) {
-        return service.getRegions(pageable.orElse(false), page.orElse(0), size.orElse(10));
+        return service.getRegions(regionId.orElse(null), pageable.orElse(false), page.orElse(0), size.orElse(10));
     }
 
     @PostMapping("/create")
