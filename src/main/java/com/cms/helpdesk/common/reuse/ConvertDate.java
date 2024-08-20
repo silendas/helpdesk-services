@@ -43,4 +43,10 @@ public class ConvertDate {
         }
         return null;
     }
+
+    public static String formatToYMDT(Date date) {
+        if(date == null) return null;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return sdf.format(date);
+    }
 }

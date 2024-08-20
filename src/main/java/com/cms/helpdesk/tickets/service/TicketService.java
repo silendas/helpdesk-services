@@ -1,5 +1,20 @@
 package com.cms.helpdesk.tickets.service;
 
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -11,20 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.io.IOException;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.cms.helpdesk.attachments.dto.AttachmentRes;
 import com.cms.helpdesk.attachments.filter.AttachmentFilter;
@@ -443,26 +444,49 @@ public class TicketService {
                 .and(new Filter<Ticket>().orderByIdAsc());
         List<Ticket> tickets = ticketRepository.findAll(spec);
 
-        List<String> headers = Arrays.asList("Nomor Tiket", "Departemen", "Region", "Branch", "Kategori Kebutuhan",
-                "Status", "Target Penyelesaian", "Waktu Proses", "Deskripsi", "Tanggal Terbuat");
+        List<String> headers = Arrays.asList("Nomor Tiket", "Diproses Oleh", "Tanggal Terbuat", "Tanggal Diproses", "Target Penyelesaian", "Tanggal Penyelesaian", "Waktu Penyelesaian", "Departemen", "Region", "Branch", "Kategori Kebutuhan", "Status", "Deskripsi");
 
         List<Map<String, Object>> data = tickets.stream().map(ticket -> {
             Map<String, Object> map = new HashMap<>();
             map.put("Nomor Tiket", ticket.getTicketNumber());
+            map.put("Diproses Oleh", ticket.getProcessBy() != null ? ticket.getProcessBy().getName() : "");
+            map.put("Tanggal Terbuat", ConvertDate.formatToYMDT(ticket.getCreatedAt()));
+            map.put("Tanggal Diproses", ConvertDate.formatToYMDT(ticket.getProcessAt()));
+            map.put("Target Penyelesaian", ConvertDate.formatToYMDT(ticket.getTargetCompletion()));
+            map.put("Tanggal Penyelesaian", ConvertDate.formatToYMDT(ticket.getTimeCompletion()));
+            map.put("Waktu Penyelesaian", makeTimeCompletion(ticket.getTimeCompletion(), ticket.getTargetCompletion()));
             map.put("Departemen", ticket.getDepartmentId() != null ? ticket.getDepartmentId().getName() : "");
             map.put("Region", ticket.getRegionId() != null ? ticket.getRegionId().getName() : "");
             map.put("Branch", ticket.getBranchId() != null ? ticket.getBranchId().getName() : "");
-            map.put("Kategori Kebutuhan",
-                    ticket.getConstraintCategoryId() != null ? ticket.getConstraintCategoryId().getName() : "");
-            map.put("Status", ticket.getStatus());
-            map.put("Target Penyelesaian", ticket.getTargetCompletion());
-            map.put("Waktu Proses", ticket.getProcessAt());
+            map.put("Kategori Kebutuhan", ticket.getConstraintCategoryId() != null ? ticket.getConstraintCategoryId().getName() : "");
+            map.put("Status", ticket.getStatus().toString());
             map.put("Deskripsi", ticket.getDescription());
-            map.put("Tanggal Terbuat", ConvertDate.indonesianFormat(ticket.getCreatedAt()));
             return map;
         }).collect(Collectors.toList());
 
         return reportUtil.generate("Report Tickets", headers, data);
+    }
+
+    public static String makeTimeCompletion(Date firstDate, Date secondDate) {
+        long diffInMillies = Math.abs(firstDate.getTime() - secondDate.getTime());
+
+        long hours = TimeUnit.MILLISECONDS.toHours(diffInMillies);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(diffInMillies) - TimeUnit.HOURS.toMinutes(hours);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(diffInMillies) - TimeUnit.HOURS.toSeconds(hours) - TimeUnit.MINUTES.toSeconds(minutes);
+
+        StringBuilder result = new StringBuilder();
+
+        if (hours > 0) {
+            result.append(hours).append(" Jam ");
+        }
+        if (minutes > 0) {
+            result.append(minutes).append(" Menit ");
+        }
+        if (seconds > 0) {
+            result.append(seconds).append(" Detik");
+        }
+
+        return result.toString().trim();
     }
 
     public Ticket getTicket(Long id) {
