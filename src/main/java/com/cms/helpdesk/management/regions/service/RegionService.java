@@ -32,7 +32,7 @@ public class RegionService {
     public ResponseEntity<Object> getRegions(Long regionId, boolean pageable, int page, int size) {
         Specification<Region> spec = Specification
                 .where(new Filter<Region>().isNotDeleted())
-                .and(new RegionFilter().byRegionId(regionId))
+                // .and(new RegionFilter().byRegionId(regionId))
                 .and(new Filter<Region>().orderByIdAsc());
         if (pageable) {
             Page<Region> res = paginate.findAll(spec, PageRequest.of(page, size));
