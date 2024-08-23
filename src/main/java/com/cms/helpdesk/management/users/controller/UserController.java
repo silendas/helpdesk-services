@@ -34,12 +34,13 @@ public class UserController {
     public ResponseEntity<Object> getUsers(
             @RequestParam("search") Optional<String> search,
             @RequestParam("approval") Optional<String> approval,
-            @RequestParam("departementId") Optional<Long> departementId,
+            @RequestParam("departmentId") Optional<Long> departmentId,
             @RequestParam("roleId") Optional<Long> roleId,
             @RequestParam("pageable") Optional<Boolean> pageable,
             @RequestParam("page") Optional<Integer> page,
             @RequestParam("size") Optional<Integer> size) {
-        return service.getUsers(departementId.orElse(null), roleId.orElse(null), search.orElse(null), approval.orElse(""), pageable.orElse(false), page.orElse(0), size.orElse(10));
+        return service.getUsers(departmentId.orElse(null), roleId.orElse(null), search.orElse(null),
+                approval.orElse(""), pageable.orElse(false), page.orElse(0), size.orElse(10));
     }
 
     @PostMapping("/create")
