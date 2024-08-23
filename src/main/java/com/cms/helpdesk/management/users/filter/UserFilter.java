@@ -30,11 +30,11 @@ public class UserFilter {
         };
     }
 
-    public Specification<User> departement(Long departementId) {
+    public Specification<User> department(Long departmentId) {
         return (root, query, criteriaBuilder) -> {
-            if (departementId == null || departementId == 0)
+            if (departmentId == null || departmentId == 0)
                 return null;
-            return criteriaBuilder.equal(root.get("employee").get("department").get("id"), departementId);
+            return criteriaBuilder.equal(root.get("employee").get("department").get("id"), departmentId);
         };
     }
 

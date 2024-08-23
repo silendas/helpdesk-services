@@ -54,11 +54,12 @@ public class UserService {
     @Autowired
     private EmployeeService employeeService;
 
-    public ResponseEntity<Object> getUsers(Long departementId, Long roleId, String search, String approval, boolean pageable, int page, int size) {
+    public ResponseEntity<Object> getUsers(Long departmentId, Long roleId, String search, String approval,
+            boolean pageable, int page, int size) {
         Specification<User> spec = Specification
                 .where(new Filter<User>().orderByIdDesc())
                 .and(new UserFilter().approval(approval))
-                .and(new UserFilter().departement(departementId))
+                .and(new UserFilter().department(departmentId))
                 .and(new UserFilter().role(roleId))
                 .and(new UserFilter().query(search));
         if (pageable) {
@@ -69,7 +70,8 @@ public class UserService {
                     null), 1);
         } else {
             return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
-                    Message.SUCCESSFULLY_DEFAULT.getMessage(), null, buildResUsers(userRepository.findAll(spec)), null), 1);
+                    Message.SUCCESSFULLY_DEFAULT.getMessage(), null, buildResUsers(userRepository.findAll(spec)), null),
+                    1);
         }
     }
 
