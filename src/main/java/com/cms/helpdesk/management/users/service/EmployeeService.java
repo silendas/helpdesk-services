@@ -21,6 +21,7 @@ import com.cms.helpdesk.management.departments.repository.DepartmentRepository;
 import com.cms.helpdesk.management.regions.model.Region;
 import com.cms.helpdesk.management.regions.repository.RegionRepository;
 import com.cms.helpdesk.management.users.dto.request.ReqEmployeeDTO;
+import com.cms.helpdesk.management.users.filter.EmployeeFilter;
 import com.cms.helpdesk.management.users.model.Employee;
 import com.cms.helpdesk.management.users.repository.EmployeeRepository;
 import com.cms.helpdesk.management.users.repository.PaginationEmployee;
@@ -46,6 +47,7 @@ public class EmployeeService {
     public ResponseEntity<Object> getEmployees(boolean pageable, int page, int size) {
         Specification<Employee> spec = Specification
                 .where(new Filter<Employee>().orderByIdDesc())
+                .and(new EmployeeFilter().notIncludeSuperadmin())
                 .and(new Filter<Employee>().isNotDeleted());
         if (pageable) {
             Page<Employee> res = paginate.findAll(spec, PageRequest.of(page, size));

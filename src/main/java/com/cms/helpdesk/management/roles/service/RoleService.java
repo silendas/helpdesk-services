@@ -15,6 +15,7 @@ import com.cms.helpdesk.common.reuse.Filter;
 import com.cms.helpdesk.common.reuse.PageConvert;
 
 import com.cms.helpdesk.management.roles.dto.request.RoleDTO;
+import com.cms.helpdesk.management.roles.filter.RoleFilter;
 import com.cms.helpdesk.management.roles.model.Role;
 import com.cms.helpdesk.management.roles.repository.PaginateRole;
 import com.cms.helpdesk.management.roles.repository.RoleRepository;
@@ -31,6 +32,7 @@ public class RoleService {
     public ResponseEntity<Object> getRoles(int page, int size) {
         Specification<Role> spec = Specification
                 .where(new Filter<Role>().isNotDeleted())
+                .and(new RoleFilter().notIncludeSuperadmin())
                 .and(new Filter<Role>().orderByIdAsc());
         Page<Role> res = paginate.findAll(spec, PageRequest.of(page, size));
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
