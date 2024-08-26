@@ -444,27 +444,46 @@ public class TicketService {
                 .and(new Filter<Ticket>().orderByIdAsc());
         List<Ticket> tickets = ticketRepository.findAll(spec);
 
-        List<String> headers = Arrays.asList("Nomor Tiket", "Diproses Oleh", "Tanggal Terbuat", "Tanggal Diproses", "Target Penyelesaian", "Tanggal Penyelesaian", "Waktu Penyelesaian", "Departemen", "Region", "Branch", "Kategori Kebutuhan", "Status", "Deskripsi");
+        List<String> headers = Arrays.asList("Nomor Tiket", "Urgensi", "Dibuat Oleh", "Diproses Oleh", "Tanggal Terbuat", "Tanggal Diproses", "Target Penyelesaian", "Tanggal Penyelesaian", "Waktu Penyelesaian", "Status Penyelesaian", "Departemen", "Region", "Branch", "Kategori Kebutuhan", "Status", "Deskripsi", "Deskripsi Penyelesaian");
 
+        // Dibuat Oleh, Urgensi -> CC.Priority, Deskripsi Penyelesaian, Status Penyelesaian
         List<Map<String, Object>> data = tickets.stream().map(ticket -> {
             Map<String, Object> map = new HashMap<>();
             map.put("Nomor Tiket", ticket.getTicketNumber());
+            map.put("Urgensi", ticket.getConstraintCategoryId() != null ? ticket.getConstraintCategoryId().getPriority().toString() : "");
+            map.put("Dibuat Oleh", ticket.getCreatedBy() != null ? employeeService.getEmployee(ticket.getCreatedBy()).getName() : "");
             map.put("Diproses Oleh", ticket.getProcessBy() != null ? ticket.getProcessBy().getName() : "");
             map.put("Tanggal Terbuat", ConvertDate.formatToYMDT(ticket.getCreatedAt()));
             map.put("Tanggal Diproses", ConvertDate.formatToYMDT(ticket.getProcessAt()));
             map.put("Target Penyelesaian", ConvertDate.formatToYMDT(ticket.getTargetCompletion()));
             map.put("Tanggal Penyelesaian", ConvertDate.formatToYMDT(ticket.getTimeCompletion()));
             map.put("Waktu Penyelesaian", makeTimeCompletion(ticket.getTimeCompletion(), ticket.getTargetCompletion()));
+            map.put("Status Penyelesaian", makeStatusCompletion(ticket.getTimeCompletion(), ticket.getTargetCompletion()));
             map.put("Departemen", ticket.getDepartmentId() != null ? ticket.getDepartmentId().getName() : "");
             map.put("Region", ticket.getRegionId() != null ? ticket.getRegionId().getName() : "");
             map.put("Branch", ticket.getBranchId() != null ? ticket.getBranchId().getName() : "");
             map.put("Kategori Kebutuhan", ticket.getConstraintCategoryId() != null ? ticket.getConstraintCategoryId().getName() : "");
             map.put("Status", ticket.getStatus().toString());
             map.put("Deskripsi", ticket.getDescription());
+            map.put("Deskripsi Penyelesaian", ticket.getDescriptionCompletion());
             return map;
         }).collect(Collectors.toList());
 
         return reportUtil.generate("Report Tickets", headers, data);
+    }
+
+    public static String makeStatusCompletion(Date firstDate, Date secondDate) {
+        if(firstDate == null || secondDate == null) return null;
+        long diffInMillies = Math.abs(firstDate.getTime() - secondDate.getTime());
+
+        StringBuilder result = new StringBuilder();
+
+        if (diffInMillies > 0) {
+            result.append("Over Time");
+        } else {
+            result.append("Under Time");
+        }
+        return result.toString().trim();
     }
 
     public static String makeTimeCompletion(Date firstDate, Date secondDate) {
