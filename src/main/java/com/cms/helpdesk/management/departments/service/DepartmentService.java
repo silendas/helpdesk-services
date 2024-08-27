@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.cms.helpdesk.common.exception.ResourceNotFoundException;
@@ -15,9 +16,11 @@ import com.cms.helpdesk.common.reuse.Filter;
 import com.cms.helpdesk.common.reuse.PageConvert;
 
 import com.cms.helpdesk.management.departments.dto.request.DepartmentDTO;
+import com.cms.helpdesk.management.departments.filter.DepartementFilter;
 import com.cms.helpdesk.management.departments.model.Department;
 import com.cms.helpdesk.management.departments.repository.DepartmentRepository;
 import com.cms.helpdesk.management.departments.repository.PaginateDepartment;
+import com.cms.helpdesk.management.users.model.User;
 
 @Service
 public class DepartmentService {
@@ -28,10 +31,11 @@ public class DepartmentService {
     @Autowired
     private PaginateDepartment paginate;
 
-    public ResponseEntity<Object> getDepartments(boolean pageable, int page, int size) {
+    public ResponseEntity<Object> getDepartments(Long departementId, boolean pageable, int page, int size) {
         Specification<Department> spec = Specification
                 .where(new Filter<Department>().isNotDeleted())
-                .and(new Filter<Department>().orderByIdAsc());
+                .and(new Filter<Department>().orderByIdAsc())
+                .and(new DepartementFilter().byId(departementId));
         if (pageable) {
             Page<Department> res = paginate.findAll(spec, PageRequest.of(page, size));
             return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
