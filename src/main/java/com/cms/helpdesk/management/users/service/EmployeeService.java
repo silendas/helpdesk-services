@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.cms.helpdesk.common.exception.ResourceNotFoundException;
+import com.cms.helpdesk.common.exception.UserFoundException;
 import com.cms.helpdesk.common.response.Message;
 import com.cms.helpdesk.common.response.Response;
 import com.cms.helpdesk.common.response.dto.GlobalDto;
@@ -21,6 +22,7 @@ import com.cms.helpdesk.management.departments.repository.DepartmentRepository;
 import com.cms.helpdesk.management.regions.model.Region;
 import com.cms.helpdesk.management.regions.repository.RegionRepository;
 import com.cms.helpdesk.management.users.dto.request.ReqEmployeeDTO;
+import com.cms.helpdesk.management.users.filter.EmployeeFilter;
 import com.cms.helpdesk.management.users.model.Employee;
 import com.cms.helpdesk.management.users.repository.EmployeeRepository;
 import com.cms.helpdesk.management.users.repository.PaginationEmployee;
@@ -46,6 +48,7 @@ public class EmployeeService {
     public ResponseEntity<Object> getEmployees(boolean pageable, int page, int size) {
         Specification<Employee> spec = Specification
                 .where(new Filter<Employee>().orderByIdDesc())
+                .and(new EmployeeFilter().notIncludeSuperadmin())
                 .and(new Filter<Employee>().isNotDeleted());
         if (pageable) {
             Page<Employee> res = paginate.findAll(spec, PageRequest.of(page, size));
@@ -65,8 +68,7 @@ public class EmployeeService {
     public ResponseEntity<Object> getEmployeeByNIP(String nip) {
         Employee employee = getEmployeeByNip(nip);
         if (employee.isRegistered()) {
-            return Response.buildResponse(new GlobalDto(302, null,
-                    "Karyawan sudah mendaftar sebelumnya", null, null, null), 0);
+            throw new UserFoundException("Karyawan sudah mendaftar sebelumnya");
         }
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, employee, null), 1);

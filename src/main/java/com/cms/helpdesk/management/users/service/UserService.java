@@ -59,6 +59,7 @@ public class UserService {
         Specification<User> spec = Specification
                 .where(new Filter<User>().orderByIdDesc())
                 .and(new UserFilter().approval(approval))
+                .and(new UserFilter().notIncludeSuperadmin())
                 .and(new UserFilter().department(departmentId))
                 .and(new UserFilter().role(roleId))
                 .and(new UserFilter().query(search));

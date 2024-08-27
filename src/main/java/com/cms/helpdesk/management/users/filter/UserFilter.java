@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import com.cms.helpdesk.management.roles.model.Role;
 import com.cms.helpdesk.management.users.model.Employee;
 import com.cms.helpdesk.management.users.model.User;
 
@@ -19,6 +20,12 @@ public class UserFilter {
                 return null;
             boolean isApproved = Boolean.parseBoolean(approval);
             return criteriaBuilder.equal(root.get("isApprove"), isApproved);
+        };
+    }
+
+    public Specification<User> notIncludeSuperadmin() {
+        return (root, query, criteriaBuilder) -> {
+            return criteriaBuilder.notEqual(root.get("id"), 1);
         };
     }
 
