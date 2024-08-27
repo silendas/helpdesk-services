@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.cms.helpdesk.common.exception.ResourceNotFoundException;
+import com.cms.helpdesk.common.exception.UserFoundException;
 import com.cms.helpdesk.common.response.Message;
 import com.cms.helpdesk.common.response.Response;
 import com.cms.helpdesk.common.response.dto.GlobalDto;
@@ -67,8 +68,7 @@ public class EmployeeService {
     public ResponseEntity<Object> getEmployeeByNIP(String nip) {
         Employee employee = getEmployeeByNip(nip);
         if (employee.isRegistered()) {
-            return Response.buildResponse(new GlobalDto(302, null,
-                    "Karyawan sudah mendaftar sebelumnya", null, null, null), 0);
+            throw new UserFoundException("Karyawan sudah mendaftar sebelumnya");
         }
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, employee, null), 1);
