@@ -1,11 +1,14 @@
 package com.cms.helpdesk.dashboard.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -45,21 +48,50 @@ public class DashboardService {
         return res;
     }
 
-    public List<TicketMontlyChart> dashboardMonthlyChart(List<Ticket> tickets) {
-        return null;
+public List<TicketMontlyChart> dashboardMonthlyChart(List<Ticket> tickets) {
+    Map<String, Map<StatusEnum, Long>> monthlyStatusMap = new HashMap<>();
+    SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM", new Locale("id", "ID"));
+
+    for (Ticket ticket : tickets) {
+        String month = monthFormat.format(ticket.getCreatedAt());
+        StatusEnum status = ticket.getStatus();
+        
+        monthlyStatusMap.putIfAbsent(month, new HashMap<>());
+        Map<StatusEnum, Long> statusMap = monthlyStatusMap.get(month);
+        statusMap.put(status, statusMap.getOrDefault(status, 0L) + 1);
     }
+
+    List<TicketMontlyChart> monthlyCharts = new ArrayList<>();
+    
+    for (Map.Entry<String, Map<StatusEnum, Long>> entry : monthlyStatusMap.entrySet()) {
+        String month = entry.getKey();
+        Map<StatusEnum, Long> statusMap = entry.getValue();
+
+        List<TicketStatusChart> ticketStatusCharts = statusMap.entrySet().stream()
+            .map(e -> new TicketStatusChart(e.getKey(), e.getValue()))
+            .collect(Collectors.toList());
+
+        TicketMontlyChart monthlyChart = new TicketMontlyChart();
+        monthlyChart.setMonth(month);
+        monthlyChart.setTickets(ticketStatusCharts);
+        
+        monthlyCharts.add(monthlyChart);
+    }
+
+    return monthlyCharts;
+}
 
     public List<TicketStatusChart> dashboardTicketStatusPieChart(List<Ticket> tickets) {
         Map<StatusEnum, TicketStatusChart> statusMap = new HashMap<>();
+        for (StatusEnum status : StatusEnum.values()) {
+            TicketStatusChart statusChart = new TicketStatusChart();
+            statusChart.setStatus(status);
+            statusChart.setTotal(0L);
+            statusMap.put(status, statusChart);
+        }
         for (Ticket ticket : tickets) {
             StatusEnum status = ticket.getStatus();
             TicketStatusChart statusChart = statusMap.get(status);
-            if (statusChart == null) {
-                statusChart = new TicketStatusChart();
-                statusChart.setStatus(status);
-                statusChart.setTotal(0L);
-                statusMap.put(status, statusChart);
-            }
             statusChart.setTotal(statusChart.getTotal() + 1);
         }
         return new ArrayList<>(statusMap.values());
@@ -67,15 +99,15 @@ public class DashboardService {
 
     public List<TicketConstraint> dashboardTicketConstraint(List<Ticket> tickets) {
         Map<PriorityEnum, TicketConstraint> priorityMap = new HashMap<>();
+        for (PriorityEnum priority : PriorityEnum.values()) {
+            TicketConstraint constraint = new TicketConstraint();
+            constraint.setPriority(priority);
+            constraint.setTotal(0L);
+            priorityMap.put(priority, constraint);
+        }
         for (Ticket ticket : tickets) {
             PriorityEnum priority = ticket.getConstraintCategoryId().getPriority();
             TicketConstraint constraint = priorityMap.get(priority);
-            if (constraint == null) {
-                constraint = new TicketConstraint();
-                constraint.setPriority(priority);
-                constraint.setTotal(0L);
-                priorityMap.put(priority, constraint);
-            }
             constraint.setTotal(constraint.getTotal() + 1);
         }
         return new ArrayList<>(priorityMap.values());
