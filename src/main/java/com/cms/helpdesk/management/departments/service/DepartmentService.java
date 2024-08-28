@@ -5,7 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.cms.helpdesk.common.exception.ResourceNotFoundException;
@@ -20,7 +19,6 @@ import com.cms.helpdesk.management.departments.filter.DepartementFilter;
 import com.cms.helpdesk.management.departments.model.Department;
 import com.cms.helpdesk.management.departments.repository.DepartmentRepository;
 import com.cms.helpdesk.management.departments.repository.PaginateDepartment;
-import com.cms.helpdesk.management.users.model.User;
 
 @Service
 public class DepartmentService {
