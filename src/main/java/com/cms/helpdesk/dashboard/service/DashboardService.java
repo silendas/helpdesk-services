@@ -98,12 +98,13 @@ public class DashboardService {
         }
         for (Ticket ticket : tickets) {
             Branch branch = ticket.getBranchId();
-            TicketBranchChart branchChart = branchMap.get(branch.getName());
-            branchChart.setTotal(branchChart.getTotal() + 1);
+            if (branch != null) {
+                TicketBranchChart branchChart = branchMap.get(branch.getName());
+                branchChart.setTotal(branchChart.getTotal() + 1);
+            }
         }
         return new ArrayList<>(branchMap.values());
     }
-    
 
     public List<TicketStatusChart> dashboardTicketStatusPieChart(List<Ticket> tickets) {
         Map<StatusEnum, TicketStatusChart> statusMap = new HashMap<>();
