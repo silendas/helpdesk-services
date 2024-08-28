@@ -2,7 +2,7 @@ package com.cms.helpdesk.dashboard.dto;
 
 import java.util.List;
 
-import com.cms.helpdesk.dashboard.dto.Separate.TicketBranchChart;
+import com.cms.helpdesk.dashboard.dto.Separate.TicketOfficeChart;
 import com.cms.helpdesk.dashboard.dto.Separate.TicketConstraint;
 import com.cms.helpdesk.dashboard.dto.Separate.TicketMontlyChart;
 import com.cms.helpdesk.dashboard.dto.Separate.TicketStatusChart;
@@ -24,6 +24,8 @@ public class ResponseDashboard {
 
     private List<TicketStatusChart> ticketStatusPieCharts;
 
-    private List<TicketBranchChart> ticketBranchCharts;
+    private List<TicketOfficeChart> ticketRegionCharts;
+
+    private List<TicketOfficeChart> ticketBranchCharts;
     
 }

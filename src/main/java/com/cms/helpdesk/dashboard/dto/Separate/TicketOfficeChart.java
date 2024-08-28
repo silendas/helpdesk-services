@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TicketBranchChart {
+public class TicketAreaChart {
 
-    private String branch_name;
+    private String name;
 
     private Long total;
     

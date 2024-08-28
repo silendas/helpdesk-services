@@ -2,6 +2,7 @@ package com.cms.helpdesk.dashboard.service;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -21,7 +22,7 @@ import com.cms.helpdesk.common.response.Response;
 import com.cms.helpdesk.common.response.dto.GlobalDto;
 import com.cms.helpdesk.common.reuse.Filter;
 import com.cms.helpdesk.dashboard.dto.ResponseDashboard;
-import com.cms.helpdesk.dashboard.dto.Separate.TicketBranchChart;
+import com.cms.helpdesk.dashboard.dto.Separate.TicketOfficeChart;
 import com.cms.helpdesk.dashboard.dto.Separate.TicketConstraint;
 import com.cms.helpdesk.dashboard.dto.Separate.TicketMontlyChart;
 import com.cms.helpdesk.dashboard.dto.Separate.TicketStatusChart;
@@ -30,6 +31,8 @@ import com.cms.helpdesk.enums.PriorityEnum;
 import com.cms.helpdesk.enums.tickets.StatusEnum;
 import com.cms.helpdesk.management.branch.model.Branch;
 import com.cms.helpdesk.management.branch.service.BranchService;
+import com.cms.helpdesk.management.regions.model.Region;
+import com.cms.helpdesk.management.regions.service.RegionService;
 import com.cms.helpdesk.tickets.model.Ticket;
 
 @Service
@@ -41,8 +44,11 @@ public class DashboardService {
     @Autowired
     private BranchService branchService;
 
+    @Autowired
+    private RegionService regionService;
+
     public ResponseEntity<Object> builderResponseDashboard(Optional<Date> starDate, Optional<Date> endDate) {
-        List<Ticket> getTickets = getTicketByFilter(starDate.orElse(null), endDate.orElse(null));
+        List<Ticket> getTickets = getTicketByFilter(starDate.orElse(getStartOfYear()), endDate.orElse(getEndOfYear()));
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, buildDashboard(getTickets), null), 1);
     }
@@ -52,6 +58,7 @@ public class DashboardService {
         res.setTicketConstraints(dashboardTicketConstraint(tickets));
         res.setTicketStatusPieCharts(dashboardTicketStatusPieChart(tickets));
         res.setTicketMontlyCharts(dashboardMonthlyChart(tickets));
+        res.setTicketRegionCharts(dashboardTicketRegionChart(tickets));
         res.setTicketBranchCharts(dashboardTicketBranchChart(tickets));
         return res;
     }
@@ -88,22 +95,62 @@ public class DashboardService {
         return monthlyCharts;
     }
 
-    public List<TicketBranchChart> dashboardTicketBranchChart(List<Ticket> tickets) {
-        Map<String, TicketBranchChart> branchMap = new HashMap<>();
+    public static Date getStartOfYear() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.MONTH, Calendar.JANUARY);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
+
+    public static Date getEndOfYear() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.MONTH, Calendar.DECEMBER);
+        calendar.set(Calendar.DAY_OF_MONTH, 31);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        return calendar.getTime();
+    }
+
+    public List<TicketOfficeChart> dashboardTicketBranchChart(List<Ticket> tickets) {
+        Map<String, TicketOfficeChart> branchMap = new HashMap<>();
         for (Branch branch : branchService.getListBranch()) {
-            TicketBranchChart branchChart = new TicketBranchChart();
-            branchChart.setBranch_name(branch.getName());
+            TicketOfficeChart branchChart = new TicketOfficeChart();
+            branchChart.setName(branch.getName());
             branchChart.setTotal(0L);
             branchMap.put(branch.getName(), branchChart);
         }
         for (Ticket ticket : tickets) {
             Branch branch = ticket.getBranchId();
             if (branch != null) {
-                TicketBranchChart branchChart = branchMap.get(branch.getName());
+                TicketOfficeChart branchChart = branchMap.get(branch.getName());
                 branchChart.setTotal(branchChart.getTotal() + 1);
             }
         }
         return new ArrayList<>(branchMap.values());
+    }
+
+    public List<TicketOfficeChart> dashboardTicketRegionChart(List<Ticket> tickets) {
+        Map<String, TicketOfficeChart> regionMap = new HashMap<>();
+        for (Region region : regionService.getListRegion()) {
+            TicketOfficeChart regionChart = new TicketOfficeChart();
+            regionChart.setName(region.getName());
+            regionChart.setTotal(0L);
+            regionMap.put(region.getName(), regionChart);
+        }
+        for (Ticket ticket : tickets) {
+            Region region = ticket.getRegionId();
+            if (region != null) {
+                TicketOfficeChart regionChart = regionMap.get(region.getName());
+                regionChart.setTotal(regionChart.getTotal() + 1);
+            }
+        }
+        return new ArrayList<>(regionMap.values());
     }
 
     public List<TicketStatusChart> dashboardTicketStatusPieChart(List<Ticket> tickets) {
