@@ -1,5 +1,7 @@
 package com.cms.helpdesk.management.branch.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -83,6 +85,13 @@ public class BranchService {
         branchRepository.save(branch);
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, null, null), 0);
+    }
+
+    public List<Branch> getListBranch(){
+        Specification<Branch> spec = Specification
+                .where(new Filter<Branch>().isNotDeleted())
+                .and(new Filter<Branch>().orderByIdAsc());
+        return branchRepository.findAll(spec);
     }
 
     public Branch getBranch(Long id) {

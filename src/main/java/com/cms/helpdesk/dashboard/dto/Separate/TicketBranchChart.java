@@ -1,7 +1,5 @@
 package com.cms.helpdesk.dashboard.dto.Separate;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,10 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TicketMontlyChart {
+public class TicketBranchChart {
 
-    private String month;
+    private String branch_name;
 
-    private List<TicketStatusChart> ticketStatus;
+    private Long total;
     
 }
