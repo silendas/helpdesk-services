@@ -1,5 +1,7 @@
 package com.cms.helpdesk.management.regions.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -64,6 +66,13 @@ public class RegionService {
         regionRepository.save(region);
         return Response.buildResponse(new GlobalDto(Message.SUCCESSFULLY_DEFAULT.getStatusCode(), null,
                 Message.SUCCESSFULLY_DEFAULT.getMessage(), null, region, null), 0);
+    }
+
+    public List<Region> getListRegion(){
+        Specification<Region> spec = Specification
+                .where(new Filter<Region>().isNotDeleted())
+                .and(new Filter<Region>().orderByIdAsc());
+        return regionRepository.findAll(spec);
     }
 
     public Region getRegion(Long id) {
