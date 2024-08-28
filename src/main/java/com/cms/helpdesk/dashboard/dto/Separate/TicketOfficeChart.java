@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TicketAreaChart {
+public class TicketOfficeChart {
 
     private String name;
 
