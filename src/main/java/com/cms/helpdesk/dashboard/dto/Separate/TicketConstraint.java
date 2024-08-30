@@ -13,8 +13,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TicketConstraint {
 
-    private PriorityEnum priority;
+    private String priority;
 
     private Long total;
+
+    private Double percent;
     
 }

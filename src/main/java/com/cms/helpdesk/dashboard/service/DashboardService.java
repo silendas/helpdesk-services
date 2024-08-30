@@ -172,25 +172,38 @@ public class DashboardService {
             double percent = (double) statusChart.getTotal() / totalTickets;
             statusChart.setPercent(percent);
         }
-    
+
         return new ArrayList<>(statusMap.values());
     }
 
     public List<TicketConstraint> dashboardTicketConstraint(List<Ticket> tickets) {
-        Map<PriorityEnum, TicketConstraint> priorityMap = new HashMap<>();
+        Map<String, TicketConstraint> priorityMap = new HashMap<>();
+        long totalTickets = tickets.size();
+        TicketConstraint totals = new TicketConstraint();
+        totals.setPriority("Total");
+        totals.setTotal(totalTickets);
+        totals.setPercent(1.0);
+        priorityMap.put("Total", totals);
         for (PriorityEnum priority : PriorityEnum.values()) {
             TicketConstraint constraint = new TicketConstraint();
-            constraint.setPriority(priority);
+            constraint.setPriority(priority.toString());
             constraint.setTotal(0L);
-            priorityMap.put(priority, constraint);
+            constraint.setPercent(0.0);
+            priorityMap.put(priority.toString(), constraint);
         }
         for (Ticket ticket : tickets) {
             PriorityEnum priority = ticket.getConstraintCategoryId().getPriority();
-            TicketConstraint constraint = priorityMap.get(priority);
+            TicketConstraint constraint = priorityMap.get(priority.toString());
             constraint.setTotal(constraint.getTotal() + 1);
         }
+        for (TicketConstraint constraint : priorityMap.values()) {
+            double percent = (double) constraint.getTotal() / totalTickets;
+            constraint.setPercent(percent);
+        }
+    
         return new ArrayList<>(priorityMap.values());
     }
+    
 
     public List<Ticket> getTicketByFilter(Date starDate, Date endDate) {
         Specification<Ticket> spec = Specification.where(new Filter<Ticket>().createdAtBetween(starDate, endDate));
