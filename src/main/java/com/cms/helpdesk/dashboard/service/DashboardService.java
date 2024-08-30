@@ -150,8 +150,11 @@ public class DashboardService {
                 regionChart.setTotal(regionChart.getTotal() + 1);
             }
         }
-        return new ArrayList<>(regionMap.values());
+        return regionMap.values().stream()
+                .sorted((chart1, chart2) -> chart1.getName().compareToIgnoreCase(chart2.getName()))
+                .collect(Collectors.toList());
     }
+    
 
     public List<TicketStatusChart> dashboardTicketStatusPieChart(List<Ticket> tickets) {
         Map<StatusEnum, TicketStatusChart> statusMap = new HashMap<>();
