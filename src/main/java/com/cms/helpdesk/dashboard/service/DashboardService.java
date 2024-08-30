@@ -85,7 +85,7 @@ public class DashboardService {
             String month = entry.getKey();
             Map<StatusEnum, Long> statusMap = entry.getValue();
             List<TicketStatusChart> ticketStatusCharts = statusMap.entrySet().stream()
-                    .map(e -> new TicketStatusChart(e.getKey(), e.getValue()))
+                    .map(e -> new TicketStatusChart(e.getKey(), e.getValue(), null))
                     .collect(Collectors.toList());
             TicketMontlyChart monthlyChart = new TicketMontlyChart();
             monthlyChart.setMonth(month);
@@ -155,10 +155,12 @@ public class DashboardService {
 
     public List<TicketStatusChart> dashboardTicketStatusPieChart(List<Ticket> tickets) {
         Map<StatusEnum, TicketStatusChart> statusMap = new HashMap<>();
+        long totalTickets = tickets.size();
         for (StatusEnum status : StatusEnum.values()) {
             TicketStatusChart statusChart = new TicketStatusChart();
             statusChart.setStatus(status);
             statusChart.setTotal(0L);
+            statusChart.setPercent(0.0);
             statusMap.put(status, statusChart);
         }
         for (Ticket ticket : tickets) {
@@ -166,6 +168,11 @@ public class DashboardService {
             TicketStatusChart statusChart = statusMap.get(status);
             statusChart.setTotal(statusChart.getTotal() + 1);
         }
+        for (TicketStatusChart statusChart : statusMap.values()) {
+            double percent = (double) statusChart.getTotal() / totalTickets;
+            statusChart.setPercent(percent);
+        }
+    
         return new ArrayList<>(statusMap.values());
     }
 
