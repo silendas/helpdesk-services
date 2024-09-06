@@ -40,9 +40,7 @@ public class TicketFilter {
             subquery.select(subRoot.get("ticket").get("id"));
             subquery.where(criteriaBuilder.equal(subRoot.get("userTo").get("nip"), nip));
 
-            Predicate departmentPriorityPredicate = criteriaBuilder.and(
-                    criteriaBuilder.equal(root.get("departmentId"), departmentId),
-                    criteriaBuilder.equal(root.get("constraintCategoryId").get("priority"), priority));
+            Predicate departmentPredicate = criteriaBuilder.equal(root.get("departmentId"), departmentId);
 
             Predicate constraintDepartmentPriorityPredicate = criteriaBuilder.and(
                     criteriaBuilder.equal(root.get("constraintCategoryId").get("departmentId"), departmentId),
@@ -51,7 +49,7 @@ public class TicketFilter {
             Predicate createdByPredicate = criteriaBuilder.equal(root.get("createdBy"), nip);
 
             return criteriaBuilder.or(
-                    departmentPriorityPredicate,
+                    departmentPredicate,
                     constraintDepartmentPriorityPredicate,
                     criteriaBuilder.in(root.get("id")).value(subquery), createdByPredicate);
         };
